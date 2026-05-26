@@ -77,7 +77,7 @@ export default function HomepageClient() {
               return <span key={s} className={`text-xs font-black tracking-widest ${colors[i]}`}>{s}</span>;
             })}
           </div>
-          <span className="text-xs text-zinc-600 uppercase tracking-widest hidden sm:block">Est. 2024</span>
+          <span className="text-xs text-zinc-600 uppercase tracking-widest hidden sm:block">Est. 2026</span>
         </div>
       </div>
 
