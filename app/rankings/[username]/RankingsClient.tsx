@@ -28,7 +28,7 @@ export default function RankingsClient({ rankings, user, teams, venues, games }:
       <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black text-zinc-100">{user.displayName}'s Rankings</h1>
+            <h1 className="text-2xl font-black text-zinc-100">{user.displayName}&apos;s Rankings</h1>
             <p className="text-sm text-zinc-400 mt-1">
               @{user.username} · {rankings.length} ranking{rankings.length !== 1 ? "s" : ""}
             </p>

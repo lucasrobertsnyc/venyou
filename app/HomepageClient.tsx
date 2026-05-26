@@ -117,7 +117,7 @@ export default function HomepageClient() {
             </div>
             <h1 className="text-4xl lg:text-5xl font-black text-zinc-100 leading-tight mb-4">
               The social sports passport for every game{" "}
-              <span className="text-emerald-400">you've been to.</span>
+              <span className="text-emerald-400">you&apos;ve been to.</span>
             </h1>
             <p className="text-lg text-zinc-400 leading-relaxed mb-8">
               Log every game, rate the full experience, build your rankings, and compare your sports life with friends.
@@ -146,7 +146,7 @@ export default function HomepageClient() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-zinc-500">Sports Passport</p>
-                    <p className="text-sm font-bold text-zinc-100">Alex's Sports Passport</p>
+                    <p className="text-sm font-bold text-zinc-100">Alex&apos;s Sports Passport</p>
                   </div>
                   <span className="text-emerald-400 font-black text-xs">VenYou</span>
                 </div>
@@ -291,15 +291,15 @@ export default function HomepageClient() {
       <section id="waitlist" className="max-w-6xl mx-auto px-6 py-20">
         <div className="max-w-lg mx-auto text-center">
           <h2 className="text-2xl font-black text-zinc-100 mb-2">Join the waitlist.</h2>
-          <p className="text-zinc-400 mb-8">Be first when VenYou launches. We'll reach out when early access opens.</p>
+          <p className="text-zinc-400 mb-8">Be first when VenYou launches. We&apos;ll reach out when early access opens.</p>
 
           {submitted ? (
             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-8">
               <svg viewBox="0 0 24 24" className="w-10 h-10 text-emerald-400 mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-base font-bold text-zinc-100">You're on the list. Welcome to VenYou.</p>
-              <p className="text-sm text-zinc-400 mt-2">We'll be in touch soon.</p>
+              <p className="text-base font-bold text-zinc-100">You&apos;re on the list. Welcome to VenYou.</p>
+              <p className="text-sm text-zinc-400 mt-2">We&apos;ll be in touch soon.</p>
             </div>
           ) : (
             <form onSubmit={handleWaitlist} className="space-y-3 text-left">

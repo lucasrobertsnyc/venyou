@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import type { Venue, EventLog, Game, Team } from "@/types/venyou";
 import { formatScore, RATING_CATEGORIES, SPORT_BG_COLORS } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
-import RatingBreakdown from "@/components/RatingBreakdown";
 import TeamBadge from "@/components/TeamBadge";
 
 interface Props {
@@ -23,16 +22,6 @@ export default function VenueClient({ venue, logs, games, teams }: Props) {
     [teams, venue]
   );
 
-  const avgRating = useMemo(() => {
-    if (logs.length === 0) return null;
-    const keys = Object.keys(logs[0].rating) as (keyof typeof logs[0]["rating"])[];
-    const result = { ...logs[0].rating };
-    for (const key of keys) {
-      const avg = logs.reduce((sum, l) => sum + l.rating[key], 0) / logs.length;
-      result[key] = Math.round(avg) as typeof result[typeof key];
-    }
-    return result;
-  }, [logs]);
 
   const avgScore = useMemo(() => {
     if (logs.length === 0) return null;

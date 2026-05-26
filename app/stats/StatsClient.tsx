@@ -194,7 +194,7 @@ export default function StatsClient({ logs, venues, games, teams }: Props) {
         <div className="flex items-start justify-between mb-8">
           <div>
             <h1 className="text-2xl font-black text-zinc-100">Your Stats</h1>
-            <p className="text-sm text-zinc-400 mt-1">Alex Rivera's sports passport breakdown</p>
+            <p className="text-sm text-zinc-400 mt-1">Alex Rivera&apos;s sports passport breakdown</p>
           </div>
         </div>
 

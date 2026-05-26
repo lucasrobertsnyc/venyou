@@ -76,7 +76,7 @@ const RankingCard = React.memo(function RankingCard({ ranking, teams, venues, ga
                 </span>
               </div>
               {item.note && (
-                <p className="text-xs text-zinc-500 mt-0.5 italic">"{item.note}"</p>
+                <p className="text-xs text-zinc-500 mt-0.5 italic">&quot;{item.note}&quot;</p>
               )}
             </div>
           </li>

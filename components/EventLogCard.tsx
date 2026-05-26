@@ -45,7 +45,7 @@ const EventLogCard = React.memo(function EventLogCard({
           </h3>
           <p className="text-xs text-zinc-400 mt-0.5 truncate">{venue?.name}</p>
           {!compact && log.review && (
-            <p className="text-xs text-zinc-400 mt-2 line-clamp-2 italic">"{log.review}"</p>
+            <p className="text-xs text-zinc-400 mt-2 line-clamp-2 italic">&quot;{log.review}&quot;</p>
           )}
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">

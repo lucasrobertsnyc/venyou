@@ -75,7 +75,7 @@ export default function LogClient({ teams, games, venues }: Props) {
               ))}
             </div>
             {submitted.review && (
-              <p className="mt-4 text-sm text-zinc-400 italic">"{submitted.review}"</p>
+              <p className="mt-4 text-sm text-zinc-400 italic">&quot;{submitted.review}&quot;</p>
             )}
           </div>
 
