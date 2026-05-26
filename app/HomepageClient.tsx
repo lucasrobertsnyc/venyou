@@ -60,8 +60,8 @@ export default function HomepageClient() {
           <div className="flex items-center gap-8">
             <a href="#features" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Features</a>
             <a href="#waitlist" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Waitlist</a>
-            <Link href="/dashboard" className="text-sm font-semibold text-zinc-100 hover:text-emerald-400 transition-colors">
-              Demo →
+            <Link href="/dashboard" className="text-sm font-bold text-emerald-400 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 px-4 py-2 rounded-lg transition-colors">
+              Try demo →
             </Link>
           </div>
         </div>
@@ -97,17 +97,26 @@ export default function HomepageClient() {
               Log every game. Rate the full experience across 9 categories.
               Build rankings. Track your sports life.
             </p>
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center gap-3">
               <a
                 href="#waitlist"
                 className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
               >
                 Join the waitlist
               </a>
-              <a href="#how-it-works" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
-                See how it works ↓
-              </a>
+              <Link
+                href="/dashboard"
+                className="border border-zinc-600 hover:border-zinc-400 text-zinc-200 hover:text-zinc-100 font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
+              >
+                Try the demo
+              </Link>
             </div>
+            <p className="text-xs text-zinc-600 mt-3">
+              No account needed &mdash;{" "}
+              <a href="#how-it-works" className="underline underline-offset-2 hover:text-zinc-400 transition-colors">
+                see how it works ↓
+              </a>
+            </p>
           </div>
 
           {/* Right: stat block */}
@@ -127,6 +136,23 @@ export default function HomepageClient() {
             ))}
           </div>
 
+        </div>
+      </section>
+
+      {/* Demo callout */}
+      <section className="border-t border-zinc-800 bg-emerald-950/30">
+        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-emerald-400 mb-1">Live demo</p>
+            <p className="text-lg font-black text-zinc-100">See Stubs in action.</p>
+            <p className="text-sm text-zinc-500 mt-1">Explore a fully-loaded dashboard, stats, rankings, and venue pages — no sign-up required.</p>
+          </div>
+          <Link
+            href="/dashboard"
+            className="shrink-0 bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-4 rounded-xl text-sm transition-colors whitespace-nowrap"
+          >
+            Open the demo →
+          </Link>
         </div>
       </section>
 
