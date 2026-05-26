@@ -1,24 +1,32 @@
+import { redirect } from "next/navigation";
 import RankingsClient from "@/app/rankings/[username]/RankingsClient";
-import { getRankings, getUser } from "@/lib/api";
-import { MOCK_TEAMS, MOCK_VENUES, MOCK_GAMES } from "@/data/events";
+import { getCurrentUser, getRankings, getUser, getTeams, getVenues, getGames } from "@/lib/api";
 
 interface Props {
   params: { username: string };
 }
 
 export default async function RankingsPage({ params }: Props) {
-  const [rankings, user] = await Promise.all([
-    getRankings(params.username === "demo1" || params.username === "demo2" ? params.username : "demo1"),
-    getUser(params.username),
+  const currentUser = await getCurrentUser();
+  if (!currentUser) redirect("/login");
+
+  const profileUser = await getUser(params.username);
+  const targetUser = profileUser ?? currentUser;
+
+  const [rankings, teams, venues, games] = await Promise.all([
+    getRankings(targetUser.id),
+    getTeams(),
+    getVenues(),
+    getGames(),
   ]);
 
   return (
     <RankingsClient
       rankings={rankings}
-      user={user ?? { id: "demo1", username: params.username, displayName: params.username, bio: "", homeCity: "", favoriteTeams: {}, joinedAt: "" }}
-      teams={MOCK_TEAMS}
-      venues={MOCK_VENUES}
-      games={MOCK_GAMES}
+      user={targetUser}
+      teams={teams}
+      venues={venues}
+      games={games}
     />
   );
 }

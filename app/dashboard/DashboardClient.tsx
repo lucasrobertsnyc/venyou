@@ -6,6 +6,7 @@ import type { EventLog, User, Game, Team, Venue } from "@/types/venyou";
 import { formatScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import ActivityFeed from "@/components/ActivityFeed";
+import LogoutButton from "@/components/LogoutButton";
 
 interface Props {
   logs: EventLog[];
@@ -18,7 +19,7 @@ interface Props {
 }
 
 export default function DashboardClient({ logs, user, activity, users, games, teams, venues }: Props) {
-  const myLogs = useMemo(() => logs.filter((l) => l.userId === "demo1"), [logs]);
+  const myLogs = useMemo(() => logs.filter((l) => l.userId === user.id), [logs, user.id]);
 
   const stats = useMemo(() => {
     const sports = new Set(
@@ -50,6 +51,7 @@ export default function DashboardClient({ logs, user, activity, users, games, te
             <Link href="/log" className="text-sm bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
               + Log Game
             </Link>
+            <LogoutButton />
           </div>
         </div>
       </nav>

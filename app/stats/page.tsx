@@ -1,15 +1,25 @@
+import { redirect } from "next/navigation";
 import StatsClient from "@/app/stats/StatsClient";
-import { getUserLogs, getVenues } from "@/lib/api";
-import { MOCK_GAMES, MOCK_TEAMS } from "@/data/events";
+import { getCurrentUser, getUserLogs, getVenues, getGames, getTeams } from "@/lib/api";
 
 export default async function StatsPage() {
-  const [logs, venues] = await Promise.all([getUserLogs("demo1"), getVenues()]);
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
+  const [logs, venues, games, teams] = await Promise.all([
+    getUserLogs(user.id),
+    getVenues(),
+    getGames(),
+    getTeams(),
+  ]);
+
   return (
     <StatsClient
       logs={logs}
       venues={venues}
-      games={MOCK_GAMES}
-      teams={MOCK_TEAMS}
+      games={games}
+      teams={teams}
+      username={user.username}
     />
   );
 }

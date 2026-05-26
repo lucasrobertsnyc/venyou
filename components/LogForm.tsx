@@ -10,6 +10,7 @@ interface Props {
   teams: Team[];
   games: Game[];
   venues: Venue[];
+  userId: string;
   onSubmit: (log: Omit<EventLog, "id" | "createdAt">) => void;
 }
 
@@ -25,7 +26,7 @@ const DEFAULT_RATING: ExperienceRating = {
   valueForMoney: 0 as RatingValue,
 };
 
-export default function LogForm({ teams, games, venues, onSubmit }: Props) {
+export default function LogForm({ teams, games, venues, userId, onSubmit }: Props) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [sport, setSport] = useState<Sport | null>(null);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -66,7 +67,7 @@ export default function LogForm({ teams, games, venues, onSubmit }: Props) {
   const handleSubmit = useCallback(() => {
     if (!selectedGame || !gameRating) return;
     onSubmit({
-      userId: "demo1",
+      userId,
       gameId: selectedGame.id,
       attendedDate: selectedGame.date,
       rating,
@@ -74,7 +75,7 @@ export default function LogForm({ teams, games, venues, onSubmit }: Props) {
       review,
       section,
     });
-  }, [selectedGame, rating, gameRating, review, section, onSubmit]);
+  }, [selectedGame, rating, gameRating, review, section, onSubmit, userId]);
 
   const canProceedStep2 = selectedGame !== null;
   const canSubmit =

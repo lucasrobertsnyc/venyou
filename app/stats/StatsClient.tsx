@@ -11,12 +11,14 @@ import type { Sport } from "@/types/venyou";
 import { SPORTS, AVG_TICKET_PRICE, RATING_CATEGORIES, formatScore } from "@/lib/sports";
 import StatCard from "@/components/StatCard";
 import SportFilter from "@/components/SportFilter";
+import LogoutButton from "@/components/LogoutButton";
 
 interface Props {
   logs: EventLog[];
   venues: Venue[];
   games: Game[];
   teams: Team[];
+  username?: string;
 }
 
 const SPORT_CHART_COLORS: Record<Sport, string> = {
@@ -35,7 +37,7 @@ const TOOLTIP_STYLE = {
   fontSize: "12px",
 };
 
-export default function StatsClient({ logs, venues, games, teams }: Props) {
+export default function StatsClient({ logs, venues, games, teams, username }: Props) {
   const [sportFilter, setSportFilter] = useState<Sport | "all">("all");
   const [, startTransition] = useTransition();
 
@@ -186,6 +188,7 @@ export default function StatsClient({ logs, venues, games, teams }: Props) {
             <Link href="/log" className="text-sm bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-full font-semibold transition-colors">
               + Log Game
             </Link>
+            <LogoutButton />
           </div>
         </div>
       </nav>
@@ -194,7 +197,7 @@ export default function StatsClient({ logs, venues, games, teams }: Props) {
         <div className="flex items-start justify-between mb-8">
           <div>
             <h1 className="text-2xl font-black text-zinc-100">Your Stats</h1>
-            <p className="text-sm text-zinc-400 mt-1">Alex Rivera&apos;s sports passport breakdown</p>
+            <p className="text-sm text-zinc-400 mt-1">{username ? `@${username}` : "Your"} sports passport breakdown</p>
           </div>
         </div>
 

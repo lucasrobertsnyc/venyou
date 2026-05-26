@@ -1,6 +1,5 @@
 import ProfileClient from "@/app/profile/[username]/ProfileClient";
-import { getUserLogs, getUser, getWishlist } from "@/lib/api";
-import { MOCK_GAMES, MOCK_TEAMS, MOCK_VENUES } from "@/data/events";
+import { getUserLogs, getUser, getWishlist, getGames, getTeams, getVenues } from "@/lib/api";
 
 interface Props {
   params: { username: string };
@@ -8,22 +7,38 @@ interface Props {
 
 export default async function ProfilePage({ params }: Props) {
   const username = params.username;
-  const userId = username === "demo2" ? "demo2" : "demo1";
+  const user = await getUser(username);
 
-  const [logs, user, wishlist] = await Promise.all([
-    getUserLogs(userId),
-    getUser(username),
-    getWishlist(userId),
+  if (!user) {
+    const [games, teams, venues] = await Promise.all([getGames(), getTeams(), getVenues()]);
+    return (
+      <ProfileClient
+        logs={[]}
+        user={{ id: "", username, displayName: username, bio: "", homeCity: "", favoriteTeams: {}, joinedAt: "" }}
+        wishlist={[]}
+        games={games}
+        teams={teams}
+        venues={venues}
+      />
+    );
+  }
+
+  const [logs, wishlist, games, teams, venues] = await Promise.all([
+    getUserLogs(user.id),
+    getWishlist(user.id),
+    getGames(),
+    getTeams(),
+    getVenues(),
   ]);
 
   return (
     <ProfileClient
       logs={logs}
-      user={user ?? { id: userId, username, displayName: username, bio: "", homeCity: "", favoriteTeams: {}, joinedAt: "" }}
+      user={user}
       wishlist={wishlist}
-      games={MOCK_GAMES}
-      teams={MOCK_TEAMS}
-      venues={MOCK_VENUES}
+      games={games}
+      teams={teams}
+      venues={venues}
     />
   );
 }

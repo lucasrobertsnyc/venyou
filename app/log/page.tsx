@@ -1,6 +1,16 @@
+import { redirect } from "next/navigation";
 import LogClient from "@/app/log/LogClient";
-import { MOCK_TEAMS, MOCK_GAMES, MOCK_VENUES } from "@/data/events";
+import { getCurrentUser, getTeams, getGames, getVenues } from "@/lib/api";
 
-export default function LogPage() {
-  return <LogClient teams={MOCK_TEAMS} games={MOCK_GAMES} venues={MOCK_VENUES} />;
+export default async function LogPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
+  const [teams, games, venues] = await Promise.all([
+    getTeams(),
+    getGames(),
+    getVenues(),
+  ]);
+
+  return <LogClient teams={teams} games={games} venues={venues} userId={user.id} />;
 }

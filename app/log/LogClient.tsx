@@ -5,24 +5,43 @@ import Link from "next/link";
 import type { EventLog, Game, Team, Venue } from "@/types/venyou";
 import { formatScore } from "@/lib/sports";
 import LogForm from "@/components/LogForm";
+import LogoutButton from "@/components/LogoutButton";
+import { logGameAction } from "@/app/log/actions";
 
 interface Props {
   teams: Team[];
   games: Game[];
   venues: Venue[];
+  userId: string;
 }
 
 type Submitted = Omit<EventLog, "id" | "createdAt">;
 
-export default function LogClient({ teams, games, venues }: Props) {
+export default function LogClient({ teams, games, venues, userId }: Props) {
   const [submitted, setSubmitted] = useState<Submitted | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = useCallback((log: Submitted) => {
+  const handleSubmit = useCallback(async (log: Submitted) => {
+    setSubmitError(null);
+    const { error } = await logGameAction({
+      userId: log.userId,
+      gameId: log.gameId,
+      attendedDate: log.attendedDate,
+      rating: log.rating,
+      gameRating: log.gameRating,
+      review: log.review,
+      section: log.section,
+    });
+    if (error) {
+      setSubmitError(error.message);
+      return;
+    }
     setSubmitted(log);
   }, []);
 
   const handleReset = useCallback(() => {
     setSubmitted(null);
+    setSubmitError(null);
   }, []);
 
   if (submitted) {
@@ -37,7 +56,10 @@ export default function LogClient({ teams, games, venues }: Props) {
         <nav className="border-b border-zinc-800 px-6 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">Stubs</Link>
-            <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
+            <div className="flex items-center gap-4">
+              <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
+              <LogoutButton />
+            </div>
           </div>
         </nav>
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
@@ -103,7 +125,10 @@ export default function LogClient({ teams, games, venues }: Props) {
       <nav className="border-b border-zinc-800 px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">Stubs</Link>
-          <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
+            <LogoutButton />
+          </div>
         </div>
       </nav>
       <div className="max-w-2xl mx-auto px-6 py-8">
@@ -112,7 +137,12 @@ export default function LogClient({ teams, games, venues }: Props) {
           <p className="text-sm text-zinc-400 mt-1">Add a game to your sports passport.</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-          <LogForm teams={teams} games={games} venues={venues} onSubmit={handleSubmit} />
+          {submitError && (
+            <p className="text-sm text-red-400 border border-red-900/50 bg-red-950/30 rounded-lg px-4 py-2.5 mb-4">
+              {submitError}
+            </p>
+          )}
+          <LogForm teams={teams} games={games} venues={venues} userId={userId} onSubmit={handleSubmit} />
         </div>
       </div>
     </div>

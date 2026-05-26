@@ -57,9 +57,11 @@ export default function HomepageClient() {
       <nav className="px-6 py-5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <span className="text-emerald-400 font-black text-lg tracking-tight">Stubs</span>
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
             <a href="#features" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Features</a>
             <a href="#waitlist" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Waitlist</a>
+            <Link href="/login" className="text-xs uppercase tracking-widest text-zinc-400 hover:text-zinc-100 hidden sm:block transition-colors">Sign in</Link>
+            <Link href="/signup" className="text-xs uppercase tracking-widest text-zinc-400 hover:text-zinc-100 hidden sm:block transition-colors">Sign up</Link>
             <Link href="/dashboard" className="text-sm font-bold text-emerald-400 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 px-4 py-2 rounded-lg transition-colors">
               Try demo →
             </Link>
