@@ -36,7 +36,7 @@ export default function LogClient({ teams, games, venues }: Props) {
       <div className="min-h-screen bg-zinc-950">
         <nav className="border-b border-zinc-800 px-6 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
-            <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">VenYou</Link>
+            <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">Stubs</Link>
             <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
           </div>
         </nav>
@@ -102,7 +102,7 @@ export default function LogClient({ teams, games, venues }: Props) {
     <div className="min-h-screen bg-zinc-950">
       <nav className="border-b border-zinc-800 px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">VenYou</Link>
+          <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">Stubs</Link>
           <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
         </div>
       </nav>

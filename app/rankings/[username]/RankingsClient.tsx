@@ -17,7 +17,7 @@ export default function RankingsClient({ rankings, user, teams, venues, games }:
     <div className="min-h-screen bg-zinc-950">
       <nav className="border-b border-zinc-800 px-6 py-4 sticky top-0 z-10 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">VenYou</Link>
+          <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">Stubs</Link>
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
             <Link href={`/profile/${user.username}`} className="text-sm text-zinc-400 hover:text-zinc-100">Profile</Link>

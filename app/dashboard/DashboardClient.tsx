@@ -43,7 +43,7 @@ export default function DashboardClient({ logs, user, activity, users, games, te
       {/* Nav */}
       <nav className="border-b border-zinc-800/60 px-6 py-4 sticky top-0 z-10 bg-zinc-950/90 backdrop-blur">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">VenYou</Link>
+          <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">Stubs</Link>
           <div className="flex items-center gap-6">
             <Link href="/stats" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 transition-colors">Stats</Link>
             <Link href={`/profile/${user.username}`} className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 transition-colors">Profile</Link>

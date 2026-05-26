@@ -1,4 +1,4 @@
-# VenYou — Track. Rate. Rank. Relive.
+# Stubs — Track. Rate. Rank. Relive.
 
 The social sports passport for every game you've been to.
 

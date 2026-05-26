@@ -56,7 +56,7 @@ export default function HomepageClient() {
       {/* Nav */}
       <nav className="px-6 py-5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <span className="text-emerald-400 font-black text-lg tracking-tight">VenYou</span>
+          <span className="text-emerald-400 font-black text-lg tracking-tight">Stubs</span>
           <div className="flex items-center gap-8">
             <a href="#features" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Features</a>
             <a href="#waitlist" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Waitlist</a>
@@ -242,7 +242,7 @@ export default function HomepageClient() {
               Get early access.
             </h2>
             <p className="text-zinc-500 text-sm leading-relaxed">
-              VenYou is in early development. Leave your info and
+              Stubs is in early development. Leave your info and
               we&apos;ll reach out when it&apos;s ready. No spam —
               just one email when the doors open.
             </p>
@@ -251,7 +251,7 @@ export default function HomepageClient() {
             {submitted ? (
               <div className="border-l-4 border-emerald-400 pl-6 py-2">
                 <p className="text-lg font-bold text-zinc-100">You&apos;re on the list.</p>
-                <p className="text-sm text-zinc-400 mt-1">Welcome to VenYou. We&apos;ll be in touch.</p>
+                <p className="text-sm text-zinc-400 mt-1">Welcome to Stubs. We&apos;ll be in touch.</p>
               </div>
             ) : (
               <form onSubmit={handleWaitlist} className="space-y-3">
@@ -293,7 +293,7 @@ export default function HomepageClient() {
       <footer className="py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
-            <span className="text-emerald-400 font-black text-sm">VenYou</span>
+            <span className="text-emerald-400 font-black text-sm">Stubs</span>
             <p className="text-xs text-zinc-600 mt-1 uppercase tracking-widest">Track · Rate · Rank · Relive</p>
           </div>
           <div className="flex gap-8 text-xs text-zinc-600 uppercase tracking-widest">
