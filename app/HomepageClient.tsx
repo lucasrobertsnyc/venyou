@@ -4,70 +4,38 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 
 const FEATURES = [
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a3 3 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" /></svg>
-    ),
-    title: "Log Games",
-    desc: "Teams, venue, date, score, seats, and your section.",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
-    ),
-    title: "Rate the Experience",
-    desc: "Score atmosphere, view, food, entry, crowd energy, and more.",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
-    ),
-    title: "Build Rankings",
-    desc: "Rank your best stadiums, rivalries, and away trips.",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-    ),
-    title: "Track Venues",
-    desc: "A personal map of every stadium and arena you've visited.",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
-    ),
-    title: "Compare With Friends",
-    desc: "See where friends have been and what they rated highly.",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
-    ),
-    title: "Follow Teams",
-    desc: "Track every team you've seen live across all 5 major sports.",
-  },
-];
-
-const RATING_CHIPS = [
-  "Overall experience", "Atmosphere", "Crowd energy",
-  "Seat & view quality", "Food & drinks", "Entry & security",
-  "Bathrooms & lines", "Parking & transit", "Value for money",
-];
-
-const RANKING_EXAMPLES = [
-  "My Top 10 Stadiums",
-  "Best College Football Atmospheres",
-  "Best NBA Arenas",
-  "Best Rivalries I've Attended",
-  "Best Student Sections",
-  "Bucket List Stadiums",
+  { title: "Log Games", desc: "Teams, venue, date, score, seats, section. Everything about the day." },
+  { title: "Rate the Experience", desc: "9 categories — atmosphere, food, sightlines, entry, parking, and more." },
+  { title: "Build Rankings", desc: "Your top stadiums, best rivalries, bucket list venues. Shareable lists." },
+  { title: "Track Venues", desc: "Every stadium and arena you've walked into. Your own personal map." },
+  { title: "Follow Teams", desc: "Every team you've seen live, across all five major sports." },
+  { title: "Compare With Friends", desc: "See what friends have rated. Settle the debate on which arena's better." },
 ];
 
 const STEPS = [
-  { n: "1", title: "Log a game", desc: "Record the teams, venue, date, score, and your seat." },
-  { n: "2", title: "Rate the experience", desc: "Score across 9 categories — from atmosphere to parking." },
-  { n: "3", title: "Build your sports passport", desc: "Your full history, stats, and venue map in one place." },
-  { n: "4", title: "Discover what's next", desc: "See friend ratings and find games worth attending." },
+  { n: "01", title: "Log it", desc: "Pick the game, enter your section, record the final score." },
+  { n: "02", title: "Rate it", desc: "Score across 9 experience categories, plus the game itself." },
+  { n: "03", title: "Build your passport", desc: "Your full history, stats, and venue log in one place." },
+  { n: "04", title: "Share it", desc: "Rankings, scores, and opinions — all yours to show off." },
+];
+
+const RANKING_EXAMPLES = [
+  { n: 1, title: "My Top 10 Stadiums", tag: "venues" },
+  { n: 2, title: "Best College Football Atmospheres", tag: "atmospheres" },
+  { n: 3, title: "Best NBA Arenas", tag: "venues" },
+  { n: 4, title: "Best Rivalries I've Attended", tag: "games" },
+  { n: 5, title: "Best Student Sections", tag: "experiences" },
+  { n: 6, title: "Bucket List Stadiums", tag: "venues" },
+];
+
+const RATING_ROWS = [
+  { label: "Atmosphere", score: 5, bar: 100 },
+  { label: "Crowd energy", score: 5, bar: 100 },
+  { label: "Seat & view quality", score: 4, bar: 80 },
+  { label: "Food & drinks", score: 4, bar: 80 },
+  { label: "Entry & security", score: 3, bar: 60 },
+  { label: "Parking & transit", score: 3, bar: 60 },
+  { label: "Value for money", score: 4, bar: 80 },
 ];
 
 export default function HomepageClient() {
@@ -77,210 +45,189 @@ export default function HomepageClient() {
   const [bestGame, setBestGame] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleWaitlist = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      setSubmitted(true);
-    },
-    []
-  );
+  const handleWaitlist = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  }, []);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
+
       {/* Nav */}
-      <nav className="border-b border-zinc-800 px-6 py-4">
+      <nav className="px-6 py-5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-emerald-400 font-black text-xl tracking-tight">VenYou</span>
-            <span className="text-zinc-600 text-xs hidden sm:block">Track. Rate. Rank. Relive.</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a href="#features" className="text-sm text-zinc-400 hover:text-zinc-100 hidden sm:block">Features</a>
-            <a href="#waitlist" className="text-sm text-zinc-400 hover:text-zinc-100 hidden sm:block">Waitlist</a>
-            <Link
-              href="/dashboard"
-              className="text-sm bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-full font-semibold transition-colors"
-            >
-              View Demo
+          <span className="text-emerald-400 font-black text-lg tracking-tight">VenYou</span>
+          <div className="flex items-center gap-8">
+            <a href="#features" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Features</a>
+            <a href="#waitlist" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Waitlist</a>
+            <Link href="/dashboard" className="text-sm font-semibold text-zinc-100 hover:text-emerald-400 transition-colors">
+              Demo →
             </Link>
           </div>
         </div>
       </nav>
 
+      {/* Sport bar */}
+      <div className="border-y border-zinc-800/60 py-3">
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+          <span className="text-xs text-zinc-600 uppercase tracking-widest hidden sm:block">Sports covered</span>
+          <div className="flex gap-6 sm:gap-10">
+            {(["NFL","MLB","NBA","NHL","MLS"] as const).map((s, i) => {
+              const colors = ["text-blue-400","text-red-400","text-orange-400","text-sky-400","text-green-400"];
+              return <span key={s} className={`text-xs font-black tracking-widest ${colors[i]}`}>{s}</span>;
+            })}
+          </div>
+          <span className="text-xs text-zinc-600 uppercase tracking-widest hidden sm:block">Est. 2024</span>
+        </div>
+      </div>
+
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 py-20 lg:py-28">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
-              Now accepting early access
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-black text-zinc-100 leading-tight mb-4">
-              The social sports passport for every game{" "}
-              <span className="text-emerald-400">you&apos;ve been to.</span>
+      <section className="max-w-6xl mx-auto px-6 pt-16 pb-20 lg:pt-24 lg:pb-28">
+        <div className="grid lg:grid-cols-[1fr_auto] gap-16 items-end">
+
+          {/* Left: headline */}
+          <div className="max-w-xl">
+            <h1 className="text-5xl lg:text-7xl font-black text-zinc-100 leading-[0.92] tracking-tight mb-8">
+              Every game<br />
+              you&apos;ve attended<br />
+              <span className="text-emerald-400">deserves</span><br />
+              a record.
             </h1>
-            <p className="text-lg text-zinc-400 leading-relaxed mb-8">
-              Log every game, rate the full experience, build your rankings, and compare your sports life with friends.
+            <p className="text-zinc-400 text-base leading-relaxed mb-10 max-w-sm">
+              Log every game. Rate the full experience across 9 categories.
+              Build rankings. Track your sports life.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex items-center gap-6">
               <a
                 href="#waitlist"
-                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-6 py-3 rounded-full transition-colors"
+                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
               >
-                Join the Waitlist
+                Join the waitlist
               </a>
-              <a
-                href="#how-it-works"
-                className="border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-semibold px-6 py-3 rounded-full transition-colors"
-              >
-                See How It Works
+              <a href="#how-it-works" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
+                See how it works ↓
               </a>
             </div>
           </div>
 
-          {/* Fake mobile mockup */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="w-72 bg-zinc-900 border border-zinc-700 rounded-3xl p-1 shadow-2xl shadow-zinc-950">
-              <div className="bg-zinc-800 rounded-2xl p-5 space-y-4">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-zinc-500">Sports Passport</p>
-                    <p className="text-sm font-bold text-zinc-100">Alex&apos;s Sports Passport</p>
-                  </div>
-                  <span className="text-emerald-400 font-black text-xs">VenYou</span>
-                </div>
-                {/* Stats row */}
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: "Games Logged", val: "42" },
-                    { label: "Stadiums", val: "16" },
-                    { label: "Teams Seen", val: "28" },
-                  ].map((s) => (
-                    <div key={s.label} className="bg-zinc-900 rounded-xl p-2 text-center">
-                      <p className="text-xl font-black text-emerald-400">{s.val}</p>
-                      <p className="text-xs text-zinc-500 leading-tight">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Recent log */}
-                <div className="bg-zinc-900 rounded-xl p-3">
-                  <p className="text-xs text-zinc-500 mb-1">Recent Log</p>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold text-zinc-100">Chiefs vs. Bills</p>
-                      <p className="text-xs text-zinc-500">Arrowhead Stadium · Jan 21</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-black text-emerald-400">9.2</p>
-                      <p className="text-xs text-zinc-500">overall</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Fav venue */}
-                <div className="flex items-center justify-between bg-zinc-900 rounded-xl px-3 py-2">
-                  <div>
-                    <p className="text-xs text-zinc-500">Favorite Venue</p>
-                    <p className="text-xs font-semibold text-zinc-100">Arrowhead Stadium</p>
-                  </div>
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 text-emerald-400" fill="currentColor"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" /></svg>
-                </div>
-                {/* Sport badges */}
-                <div className="flex gap-1 flex-wrap">
-                  {["NFL", "MLB", "NBA", "NHL", "MLS"].map((s, i) => {
-                    const colors = ["bg-blue-500", "bg-red-500", "bg-orange-500", "bg-sky-400", "bg-green-500"];
-                    return (
-                      <span key={s} className={`text-xs font-bold px-2 py-0.5 rounded-full text-white ${colors[i]}`}>
-                        {s}
-                      </span>
-                    );
-                  })}
-                </div>
+          {/* Right: stat block */}
+          <div className="grid grid-cols-2 gap-px bg-zinc-800 border border-zinc-800 rounded-2xl overflow-hidden w-full lg:w-auto">
+            {[
+              { val: "42", label: "Games logged" },
+              { val: "9.2", label: "Avg overall score", emerald: true },
+              { val: "16", label: "Stadiums visited" },
+              { val: "28", label: "Teams seen live" },
+            ].map(({ val, label, emerald }) => (
+              <div key={label} className="bg-zinc-900 px-8 py-7 lg:px-10 lg:py-8">
+                <p className={`text-5xl lg:text-6xl font-black leading-none tabular-nums ${emerald ? "text-emerald-400" : "text-zinc-100"}`}>
+                  {val}
+                </p>
+                <p className="text-xs text-zinc-500 uppercase tracking-widest mt-2">{label}</p>
               </div>
-            </div>
+            ))}
           </div>
+
         </div>
       </section>
 
       {/* Features */}
-      <section id="features" className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-2xl font-black text-zinc-100 text-center mb-2">
-          Everything for the serious sports fan
-        </h2>
-        <p className="text-zinc-400 text-center mb-12">Your whole sports life, in one place.</p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 hover:border-zinc-700 transition-colors"
-            >
-              <div className="w-9 h-9 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400 mb-3">
-                {f.icon}
-              </div>
-              <h3 className="text-sm font-bold text-zinc-100 mb-1">{f.title}</h3>
-              <p className="text-sm text-zinc-500">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section id="how-it-works" className="bg-zinc-900 border-y border-zinc-800 py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl font-black text-zinc-100 text-center mb-2">How it works</h2>
-          <p className="text-zinc-400 text-center mb-12">Four steps to your complete sports passport.</p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {STEPS.map((s) => (
-              <div key={s.n} className="text-center">
-                <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white font-black text-xl mx-auto mb-4">
-                  {s.n}
+      <section id="features" className="border-t border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-[1fr_2fr] gap-16">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-emerald-400 mb-4">What it does</p>
+            <h2 className="text-3xl font-black text-zinc-100 leading-tight">
+              The complete toolkit for game-day.
+            </h2>
+          </div>
+          <div className="divide-y divide-zinc-800/70">
+            {FEATURES.map((f, i) => (
+              <div key={f.title} className="flex gap-6 py-5 first:pt-0">
+                <span className="text-xl font-black text-zinc-700 w-8 shrink-0 tabular-nums">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-100 mb-0.5">{f.title}</h3>
+                  <p className="text-sm text-zinc-500">{f.desc}</p>
                 </div>
-                <h3 className="text-sm font-bold text-zinc-100 mb-1">{s.title}</h3>
-                <p className="text-sm text-zinc-500">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Rating categories */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-2xl font-black text-zinc-100 text-center mb-2">
-          Rate what actually matters.
-        </h2>
-        <p className="text-zinc-400 text-center mb-10">
-          9 categories that capture the full game-day experience.
-        </p>
-        <div className="flex flex-wrap gap-3 justify-center">
-          {RATING_CHIPS.map((chip) => (
-            <span
-              key={chip}
-              className="bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm px-4 py-2 rounded-full hover:border-emerald-500 transition-colors"
-            >
-              {chip}
-            </span>
-          ))}
+      {/* How it works */}
+      <section id="how-it-works" className="bg-zinc-900/40 border-y border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-14">How it works</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-zinc-800">
+            {STEPS.map((s) => (
+              <div key={s.n} className="px-0 sm:px-8 py-8 sm:py-0 first:pl-0 last:pr-0">
+                <p className="text-7xl font-black text-zinc-800 leading-none mb-5 tabular-nums">{s.n}</p>
+                <h3 className="text-base font-bold text-zinc-100 mb-2">{s.title}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Rankings showcase */}
-      <section className="bg-zinc-900 border-y border-zinc-800 py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl font-black text-zinc-100 text-center mb-2">
-            Make your sports taste shareable.
-          </h2>
-          <p className="text-zinc-400 text-center mb-10">
-            Build ranking lists that show your sports identity.
-          </p>
-          <div className="max-w-sm mx-auto space-y-2">
-            {RANKING_EXAMPLES.map((title, i) => (
-              <div
-                key={title}
-                className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 flex items-center gap-3"
-              >
-                <span className="text-sm font-bold text-zinc-500 w-4">{i + 1}.</span>
-                <span className="text-sm font-semibold text-zinc-100">{title}</span>
-                <span className="ml-auto text-xs text-emerald-400 font-semibold">ranking</span>
+      {/* Rate what matters */}
+      <section className="border-b border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-start">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-emerald-400 mb-4">Experience ratings</p>
+            <h2 className="text-3xl font-black text-zinc-100 leading-tight mb-4">
+              Rate what actually matters.
+            </h2>
+            <p className="text-sm text-zinc-500 leading-relaxed">
+              Not just &quot;was it a good game?&quot; — score the atmosphere,
+              the view from your seat, the food, the bathrooms, the parking.
+              Nine categories that capture the full picture.
+            </p>
+          </div>
+          {/* Sample rating breakdown */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+            <div className="flex items-baseline justify-between mb-5">
+              <p className="text-xs text-zinc-500 uppercase tracking-widest">Chiefs vs. Bills — Jan 21</p>
+              <p className="text-2xl font-black text-emerald-400 tabular-nums">9.2<span className="text-sm font-normal text-zinc-500">/10</span></p>
+            </div>
+            <div className="space-y-3">
+              {RATING_ROWS.map(({ label, score, bar }) => (
+                <div key={label} className="flex items-center gap-3">
+                  <span className="text-xs text-zinc-400 w-32 shrink-0">{label}</span>
+                  <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${bar}%` }} />
+                  </div>
+                  <span className="text-xs font-bold text-zinc-300 w-3 tabular-nums">{score}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Rankings */}
+      <section className="bg-zinc-900/40 border-b border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-start">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-emerald-400 mb-4">Rankings</p>
+            <h2 className="text-3xl font-black text-zinc-100 leading-tight mb-4">
+              Make your sports taste shareable.
+            </h2>
+            <p className="text-sm text-zinc-500 leading-relaxed">
+              Your top stadiums. Rivalries you&apos;ve witnessed. Your bucket
+              list. Create lists, rank them, share them. Your sports opinions,
+              finally organized.
+            </p>
+          </div>
+          <div>
+            {RANKING_EXAMPLES.map(({ n, title, tag }) => (
+              <div key={title} className="flex items-baseline gap-5 py-4 border-b border-zinc-800/50 last:border-0">
+                <span className="text-3xl font-black text-zinc-800 w-8 shrink-0 leading-none tabular-nums">{n}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-semibold text-zinc-200">{title}</span>
+                </div>
+                <span className="text-xs text-zinc-600 shrink-0">{tag}</span>
               </div>
             ))}
           </div>
@@ -288,77 +235,76 @@ export default function HomepageClient() {
       </section>
 
       {/* Waitlist */}
-      <section id="waitlist" className="max-w-6xl mx-auto px-6 py-20">
-        <div className="max-w-lg mx-auto text-center">
-          <h2 className="text-2xl font-black text-zinc-100 mb-2">Join the waitlist.</h2>
-          <p className="text-zinc-400 mb-8">Be first when VenYou launches. We&apos;ll reach out when early access opens.</p>
-
-          {submitted ? (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-8">
-              <svg viewBox="0 0 24 24" className="w-10 h-10 text-emerald-400 mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-base font-bold text-zinc-100">You&apos;re on the list. Welcome to VenYou.</p>
-              <p className="text-sm text-zinc-400 mt-2">We&apos;ll be in touch soon.</p>
-            </div>
-          ) : (
-            <form onSubmit={handleWaitlist} className="space-y-3 text-left">
-              <input
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500"
-              />
-              <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500"
-              />
-              <input
-                type="text"
-                placeholder="Favorite team"
-                value={team}
-                onChange={(e) => setTeam(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500"
-              />
-              <textarea
-                placeholder="Best game you've ever attended?"
-                value={bestGame}
-                onChange={(e) => setBestGame(e.target.value)}
-                rows={2}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 resize-none"
-              />
-              <button
-                type="submit"
-                className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 rounded-xl transition-colors"
-              >
-                Join the Waitlist
-              </button>
-            </form>
-          )}
+      <section id="waitlist" className="border-b border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-start">
+          <div>
+            <h2 className="text-4xl font-black text-zinc-100 leading-tight mb-3">
+              Get early access.
+            </h2>
+            <p className="text-zinc-500 text-sm leading-relaxed">
+              VenYou is in early development. Leave your info and
+              we&apos;ll reach out when it&apos;s ready. No spam —
+              just one email when the doors open.
+            </p>
+          </div>
+          <div>
+            {submitted ? (
+              <div className="border-l-4 border-emerald-400 pl-6 py-2">
+                <p className="text-lg font-bold text-zinc-100">You&apos;re on the list.</p>
+                <p className="text-sm text-zinc-400 mt-1">Welcome to VenYou. We&apos;ll be in touch.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleWaitlist} className="space-y-3">
+                {[
+                  { placeholder: "Your name", value: name, onChange: setName, type: "text", required: true },
+                  { placeholder: "Email address", value: email, onChange: setEmail, type: "email", required: true },
+                  { placeholder: "Favorite team (optional)", value: team, onChange: setTeam, type: "text", required: false },
+                ].map(({ placeholder, value, onChange, type, required }) => (
+                  <input
+                    key={placeholder}
+                    type={type}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    required={required}
+                    className="w-full bg-zinc-900 border border-zinc-700/60 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
+                  />
+                ))}
+                <textarea
+                  placeholder="Best game you&apos;ve ever attended? (optional)"
+                  value={bestGame}
+                  onChange={(e) => setBestGame(e.target.value)}
+                  rows={2}
+                  className="w-full bg-zinc-900 border border-zinc-700/60 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors resize-none"
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 rounded-lg text-sm transition-colors"
+                >
+                  Join the waitlist
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800 py-10">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="py-10 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
-            <span className="text-emerald-400 font-black text-base">VenYou</span>
-            <span className="text-zinc-600 text-xs ml-3">Track. Rate. Rank. Relive.</span>
+            <span className="text-emerald-400 font-black text-sm">VenYou</span>
+            <p className="text-xs text-zinc-600 mt-1 uppercase tracking-widest">Track · Rate · Rank · Relive</p>
           </div>
-          <div className="flex gap-6 text-sm text-zinc-500">
-            <a href="#features" className="hover:text-zinc-300">Features</a>
-            <a href="#waitlist" className="hover:text-zinc-300">Waitlist</a>
-            <a href="#waitlist" className="hover:text-zinc-300">Contact</a>
+          <div className="flex gap-8 text-xs text-zinc-600 uppercase tracking-widest">
+            <a href="#features" className="hover:text-zinc-400 transition-colors">Features</a>
+            <a href="#waitlist" className="hover:text-zinc-400 transition-colors">Waitlist</a>
+            <Link href="/dashboard" className="hover:text-zinc-400 transition-colors">Demo</Link>
           </div>
-          <p className="text-xs text-zinc-600">Built for sports fans.</p>
+          <p className="text-xs text-zinc-700 uppercase tracking-widest">Built for fans.</p>
         </div>
       </footer>
+
     </div>
   );
 }
