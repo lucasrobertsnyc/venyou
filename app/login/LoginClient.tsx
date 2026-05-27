@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 export default function LoginClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [staySignedIn, setStaySignedIn] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,9 +28,16 @@ export default function LoginClient() {
         setLoading(false);
         return;
       }
+      // Persist the stay-signed-in preference
+      localStorage.setItem("staySignedIn", staySignedIn ? "true" : "false");
+      if (!staySignedIn) {
+        // Mark the current browser session as active; SessionGuard will
+        // sign the user out if this marker is missing on next load
+        sessionStorage.setItem("activeSession", "true");
+      }
       window.location.href = "/dashboard";
     },
-    [email, password]
+    [email, password, staySignedIn]
   );
 
   return (
@@ -67,6 +75,22 @@ export default function LoginClient() {
               required
               className="w-full bg-zinc-900 border border-zinc-700/60 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
             />
+
+            {/* Stay signed in */}
+            <label className="flex items-center gap-3 cursor-pointer select-none pt-1">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={staySignedIn}
+                  onChange={(e) => setStaySignedIn(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-zinc-700 peer-checked:bg-emerald-500 rounded-full transition-colors" />
+                <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+              </div>
+              <span className="text-sm text-zinc-400">Stay signed in</span>
+            </label>
+
             {error && (
               <p className="text-sm text-red-400 border border-red-900/50 bg-red-950/30 rounded-lg px-4 py-2.5">
                 {error}

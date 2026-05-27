@@ -9,6 +9,8 @@ export default function LogoutButton() {
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
+    localStorage.removeItem("staySignedIn");
+    sessionStorage.removeItem("activeSession");
     router.push("/");
     router.refresh();
   };
