@@ -47,9 +47,12 @@ function mapVenue(v: any): Venue {
 function mapGame(g: any): Game {
   return {
     id: g.id,
-    homeTeamId: g.home_team_id,
-    awayTeamId: g.away_team_id,
-    venueId: g.venue_id,
+    homeTeamId: g.home_team_id ?? null,
+    awayTeamId: g.away_team_id ?? null,
+    homeTeamName: g.home_team_name ?? undefined,
+    awayTeamName: g.away_team_name ?? undefined,
+    sport: g.sport ?? undefined,
+    venueId: g.venue_id ?? null,
     date: g.game_date,
     homeScore: g.home_score,
     awayScore: g.away_score,

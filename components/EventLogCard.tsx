@@ -29,7 +29,7 @@ const EventLogCard = React.memo(function EventLogCard({
 }: Props) {
   const [expanded, setExpanded] = useState(false);
 
-  const sport = homeTeam?.sport ?? "NFL";
+  const sport = homeTeam?.sport ?? game?.sport ?? "NFL";
   const accentColor = SPORT_ACCENT[sport] ?? "#34d399";
   const score = formatScore(log.rating);
   const scoreNum = parseFloat(score);
@@ -63,9 +63,9 @@ const EventLogCard = React.memo(function EventLogCard({
               <span className="text-xs text-zinc-500">{dateStr}</span>
             </div>
             <h3 className="text-sm font-bold text-zinc-100 truncate leading-snug">
-              {awayTeam?.abbreviation ?? "?"}{" "}
+              {awayTeam?.abbreviation ?? game?.awayTeamName ?? "?"}{" "}
               <span className="text-zinc-500 font-normal">@</span>{" "}
-              {homeTeam?.abbreviation ?? "?"}
+              {homeTeam?.abbreviation ?? game?.homeTeamName ?? "?"}
               {game?.homeScore != null && (
                 <span className="text-zinc-500 font-normal ml-2">
                   {game.homeScore}–{game.awayScore}

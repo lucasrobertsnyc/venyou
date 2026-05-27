@@ -84,7 +84,10 @@ export default function DashboardClient({
 
   const stats = useMemo(() => {
     const sports = new Set(
-      myLogs.map((l) => teams.find((t) => t.id === games.find((g) => g.id === l.gameId)?.homeTeamId)?.sport).filter(Boolean)
+      myLogs.map((l) => {
+        const game = games.find((g) => g.id === l.gameId);
+        return teams.find((t) => t.id === game?.homeTeamId)?.sport ?? game?.sport;
+      }).filter(Boolean)
     );
     const venueIds = new Set(
       myLogs.map((l) => games.find((g) => g.id === l.gameId)?.venueId).filter(Boolean)

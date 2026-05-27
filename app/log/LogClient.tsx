@@ -2,41 +2,27 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import type { EventLog, Game, Team, Venue } from "@/types/venyou";
 import { formatScore } from "@/lib/sports";
-import LogForm from "@/components/LogForm";
+import LogForm, { type LogSubmission } from "@/components/LogForm";
 import LogoutButton from "@/components/LogoutButton";
 import { logGameAction } from "@/app/log/actions";
 
 interface Props {
-  teams: Team[];
-  games: Game[];
-  venues: Venue[];
   userId: string;
 }
 
-type Submitted = Omit<EventLog, "id" | "createdAt">;
-
-export default function LogClient({ teams, games, venues, userId }: Props) {
-  const [submitted, setSubmitted] = useState<Submitted | null>(null);
+export default function LogClient({ userId }: Props) {
+  const [submitted, setSubmitted] = useState<LogSubmission | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = useCallback(async (log: Submitted) => {
+  const handleSubmit = useCallback(async (data: LogSubmission) => {
     setSubmitError(null);
-    const { error } = await logGameAction({
-      userId: log.userId,
-      gameId: log.gameId,
-      attendedDate: log.attendedDate,
-      rating: log.rating,
-      gameRating: log.gameRating,
-      review: log.review,
-      section: log.section,
-    });
+    const { error } = await logGameAction(data);
     if (error) {
       setSubmitError(error.message);
       return;
     }
-    setSubmitted(log);
+    setSubmitted(data);
   }, []);
 
   const handleReset = useCallback(() => {
@@ -45,12 +31,7 @@ export default function LogClient({ teams, games, venues, userId }: Props) {
   }, []);
 
   if (submitted) {
-    const game = games.find((g) => g.id === submitted.gameId);
-    const home = teams.find((t) => t.id === game?.homeTeamId);
-    const away = teams.find((t) => t.id === game?.awayTeamId);
-    const venue = venues.find((v) => v.id === game?.venueId);
     const score = formatScore(submitted.rating);
-
     return (
       <div className="min-h-screen bg-zinc-950">
         <nav className="border-b border-zinc-800 px-6 py-4">
@@ -75,14 +56,19 @@ export default function LogClient({ teams, games, venues, userId }: Props) {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-base font-bold text-zinc-100">
-                  {away?.abbreviation} @ {home?.abbreviation}
+                  {submitted.awayTeamName} @ {submitted.homeTeamName}
                 </h2>
-                <p className="text-sm text-zinc-400">{venue?.name} · {submitted.attendedDate}</p>
+                <p className="text-sm text-zinc-400">{submitted.sport} · {submitted.date}</p>
+                {submitted.awayScore != null && submitted.homeScore != null && (
+                  <p className="text-sm text-zinc-400">{submitted.awayScore}–{submitted.homeScore}</p>
+                )}
               </div>
-              <div className="text-right">
-                <span className="text-3xl font-black text-emerald-400">{score}</span>
-                <span className="text-sm text-zinc-500 ml-1">/10</span>
-              </div>
+              {score !== "—" && (
+                <div className="text-right">
+                  <span className="text-3xl font-black text-emerald-400">{score}</span>
+                  <span className="text-sm text-zinc-500 ml-1">/10</span>
+                </div>
+              )}
             </div>
             <div className="grid grid-cols-3 gap-3 text-center">
               {[
@@ -142,7 +128,7 @@ export default function LogClient({ teams, games, venues, userId }: Props) {
               {submitError}
             </p>
           )}
-          <LogForm teams={teams} games={games} venues={venues} userId={userId} onSubmit={handleSubmit} />
+          <LogForm userId={userId} onSubmit={handleSubmit} />
         </div>
       </div>
     </div>

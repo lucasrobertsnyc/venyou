@@ -70,7 +70,7 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
       logs.map((l) => {
         const game = games.find((g) => g.id === l.gameId);
         const home = teams.find((t) => t.id === game?.homeTeamId);
-        return { ...l, sport: home?.sport, venueId: game?.venueId };
+        return { ...l, sport: home?.sport ?? game?.sport, venueId: game?.venueId };
       }),
     [logs, games, teams]
   );

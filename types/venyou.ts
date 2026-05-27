@@ -45,9 +45,12 @@ export interface Venue {
 
 export interface Game {
   id: string;
-  homeTeamId: string;
-  awayTeamId: string;
-  venueId: string;
+  homeTeamId: string | null;
+  awayTeamId: string | null;
+  homeTeamName?: string;
+  awayTeamName?: string;
+  sport?: Sport;
+  venueId: string | null;
   date: string;
   homeScore: number | null;
   awayScore: number | null;
