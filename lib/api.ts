@@ -280,24 +280,30 @@ export async function getWishlist(userId: string): Promise<WantToAttend[]> {
 
 export async function getFriends(userId: string): Promise<User[]> {
   const supabase = await createClient()
-  const { data: friendships } = await supabase
-    .from('friendships')
-    .select('friend_id')
-    .eq('user_id', userId)
-  if (!friendships || friendships.length === 0) return []
-  const friendIds = friendships.map((f) => f.friend_id)
+  const [{ data: outgoing }, { data: incoming }] = await Promise.all([
+    supabase.from('friendships').select('friend_id').eq('user_id', userId).eq('status', 'accepted'),
+    supabase.from('friendships').select('user_id').eq('friend_id', userId).eq('status', 'accepted'),
+  ])
+  const friendIds = [
+    ...(outgoing ?? []).map((f) => f.friend_id),
+    ...(incoming ?? []).map((f) => f.user_id),
+  ]
+  if (friendIds.length === 0) return []
   const { data } = await supabase.from('profiles').select('*').in('id', friendIds)
   return (data ?? []).map(mapProfile)
 }
 
 export async function getFriendActivity(userId: string): Promise<EventLog[]> {
   const supabase = await createClient()
-  const { data: friendships } = await supabase
-    .from('friendships')
-    .select('friend_id')
-    .eq('user_id', userId)
-  if (!friendships || friendships.length === 0) return []
-  const friendIds = friendships.map((f) => f.friend_id)
+  const [{ data: outgoing }, { data: incoming }] = await Promise.all([
+    supabase.from('friendships').select('friend_id').eq('user_id', userId).eq('status', 'accepted'),
+    supabase.from('friendships').select('user_id').eq('friend_id', userId).eq('status', 'accepted'),
+  ])
+  const friendIds = [
+    ...(outgoing ?? []).map((f) => f.friend_id),
+    ...(incoming ?? []).map((f) => f.user_id),
+  ]
+  if (friendIds.length === 0) return []
   const { data } = await supabase
     .from('event_logs')
     .select('*')
@@ -305,6 +311,19 @@ export async function getFriendActivity(userId: string): Promise<EventLog[]> {
     .order('created_at', { ascending: false })
     .limit(10)
   return (data ?? []).map(mapEventLog)
+}
+
+export async function getPendingRequests(userId: string): Promise<User[]> {
+  const supabase = await createClient()
+  const { data: requests } = await supabase
+    .from('friendships')
+    .select('user_id')
+    .eq('friend_id', userId)
+    .eq('status', 'pending')
+  if (!requests || requests.length === 0) return []
+  const requesterIds = requests.map((r) => r.user_id)
+  const { data } = await supabase.from('profiles').select('*').in('id', requesterIds)
+  return (data ?? []).map(mapProfile)
 }
 
 // ─── Legacy sync helpers (kept for call-site compatibility) ──────────────────

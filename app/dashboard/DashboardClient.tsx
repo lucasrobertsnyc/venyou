@@ -7,20 +7,34 @@ import { ratingToScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import ActivityFeed from "@/components/ActivityFeed";
 import LogoutButton from "@/components/LogoutButton";
-import { addFriendAction, removeFriendAction, deleteLogAction } from "@/app/dashboard/actions";
+import {
+  addFriendAction,
+  acceptFriendAction,
+  declineFriendAction,
+  removeFriendAction,
+  deleteLogAction,
+} from "@/app/dashboard/actions";
 
 interface Props {
   logs: EventLog[];
   user: User;
   friends: User[];
+  pendingRequests: User[];
   friendActivity: EventLog[];
   games: Game[];
   teams: Team[];
   venues: Venue[];
 }
 
-export default function DashboardClient({ logs, user, friends: initialFriends, friendActivity: initialFriendActivity, games, teams, venues }: Props) {
+export default function DashboardClient({
+  logs, user,
+  friends: initialFriends,
+  pendingRequests: initialPending,
+  friendActivity: initialFriendActivity,
+  games, teams, venues,
+}: Props) {
   const [friends, setFriends] = useState<User[]>(initialFriends);
+  const [pendingRequests, setPendingRequests] = useState<User[]>(initialPending);
   const [localLogs, setLocalLogs] = useState<EventLog[]>(logs);
   const [friendActivity] = useState<EventLog[]>(initialFriendActivity);
   const [showAddFriend, setShowAddFriend] = useState(false);
@@ -30,7 +44,7 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
   const [isPending, startTransition] = useTransition();
 
   const handleDeleteLog = useCallback(async (logId: string) => {
-    if (!confirm('Delete this game log?')) return;
+    if (!confirm("Delete this game log?")) return;
     setLocalLogs((prev) => prev.filter((l) => l.id !== logId));
     await deleteLogAction(logId);
   }, []);
@@ -60,14 +74,33 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
       if (result.error) {
         setAddError(result.error);
       } else {
-        setAddSuccess(`@${friendUsername.replace(/^@/, '')} added!`);
-        setFriendUsername("");
-        setShowAddFriend(false);
-        // Reload to get updated friend list
-        window.location.reload();
+        const clean = friendUsername.replace(/^@/, "").toLowerCase().trim();
+        if (result.wasAccepted) {
+          setAddSuccess(`You and @${clean} are now friends!`);
+          window.location.reload();
+        } else {
+          setAddSuccess(`Request sent to @${clean}!`);
+          setFriendUsername("");
+          setShowAddFriend(false);
+        }
       }
     });
   }, [user.id, friendUsername]);
+
+  const handleAcceptRequest = useCallback(async (requester: User) => {
+    startTransition(async () => {
+      await acceptFriendAction(requester.id, user.id);
+      setPendingRequests((prev) => prev.filter((r) => r.id !== requester.id));
+      setFriends((prev) => [...prev, requester]);
+    });
+  }, [user.id]);
+
+  const handleDeclineRequest = useCallback(async (requesterId: string) => {
+    startTransition(async () => {
+      await declineFriendAction(requesterId, user.id);
+      setPendingRequests((prev) => prev.filter((r) => r.id !== requesterId));
+    });
+  }, [user.id]);
 
   const handleRemoveFriend = useCallback(async (friendId: string, displayName: string) => {
     if (!confirm(`Remove ${displayName}?`)) return;
@@ -128,7 +161,10 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
             </div>
             <div className="space-y-2.5">
               {recentLogs.length === 0 ? (
-                <p className="text-sm text-zinc-600 py-6 text-center">No games logged yet. <Link href="/log" className="text-emerald-400 hover:text-emerald-300">Log your first →</Link></p>
+                <p className="text-sm text-zinc-600 py-6 text-center">
+                  No games logged yet.{" "}
+                  <Link href="/log" className="text-emerald-400 hover:text-emerald-300">Log your first →</Link>
+                </p>
               ) : recentLogs.map((log) => {
                 const game = games.find((g) => g.id === log.gameId);
                 const home = teams.find((t) => t.id === game?.homeTeamId);
@@ -168,7 +204,14 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
             {/* Friends */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs uppercase tracking-widest text-zinc-600">Friends</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs uppercase tracking-widest text-zinc-600">Friends</p>
+                  {pendingRequests.length > 0 && (
+                    <span className="text-xs font-bold text-white bg-emerald-500 rounded-full w-4 h-4 flex items-center justify-center leading-none">
+                      {pendingRequests.length}
+                    </span>
+                  )}
+                </div>
                 <button
                   onClick={() => { setShowAddFriend((v) => !v); setAddError(null); setAddSuccess(null); }}
                   className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-semibold"
@@ -193,7 +236,7 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
                       disabled={isPending || !friendUsername.trim()}
                       className="text-xs bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors"
                     >
-                      {isPending ? "…" : "Add"}
+                      {isPending ? "…" : "Send"}
                     </button>
                   </div>
                   {addError && <p className="text-xs text-red-400">{addError}</p>}
@@ -201,12 +244,51 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
                 </form>
               )}
 
+              {/* Pending incoming requests */}
+              {pendingRequests.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-xs text-zinc-500 mb-1.5">Requests</p>
+                  <div className="space-y-1">
+                    {pendingRequests.map((requester) => (
+                      <div
+                        key={requester.id}
+                        className="flex items-center gap-2 py-1.5 px-2.5 bg-zinc-800 border border-zinc-700/60 rounded-lg"
+                      >
+                        <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-400 shrink-0">
+                          {requester.displayName.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-zinc-200 truncate">{requester.displayName}</p>
+                          <p className="text-xs text-zinc-600">@{requester.username}</p>
+                        </div>
+                        <button
+                          onClick={() => handleAcceptRequest(requester)}
+                          disabled={isPending}
+                          className="text-emerald-400 hover:text-emerald-300 transition-colors disabled:opacity-50 text-sm font-bold"
+                          title="Accept"
+                        >
+                          ✓
+                        </button>
+                        <button
+                          onClick={() => handleDeclineRequest(requester.id)}
+                          disabled={isPending}
+                          className="text-zinc-600 hover:text-red-400 transition-colors disabled:opacity-50 text-base leading-none"
+                          title="Decline"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Friend list */}
-              {friends.length === 0 ? (
+              {friends.length === 0 && pendingRequests.length === 0 ? (
                 <p className="text-xs text-zinc-600 leading-relaxed">
                   No friends yet. Add someone by their username to see their game logs here.
                 </p>
-              ) : (
+              ) : friends.length > 0 ? (
                 <div className="space-y-1 mb-4">
                   {friends.map((friend) => (
                     <div key={friend.id} className="flex items-center gap-2.5 py-1.5 group">
@@ -227,7 +309,7 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
                     </div>
                   ))}
                 </div>
-              )}
+              ) : null}
 
               {/* Friend activity feed */}
               {friendActivity.length > 0 && (
