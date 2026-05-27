@@ -6,12 +6,15 @@ import { formatScore } from "@/lib/sports";
 import LogForm, { type LogSubmission } from "@/components/LogForm";
 import LogoutButton from "@/components/LogoutButton";
 import { logGameAction } from "@/app/log/actions";
+import type { Team, Venue } from "@/types/venyou";
 
 interface Props {
   userId: string;
+  teams: Team[];
+  venues: Venue[];
 }
 
-export default function LogClient({ userId }: Props) {
+export default function LogClient({ userId, teams, venues }: Props) {
   const [submitted, setSubmitted] = useState<LogSubmission | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -128,7 +131,7 @@ export default function LogClient({ userId }: Props) {
               {submitError}
             </p>
           )}
-          <LogForm userId={userId} onSubmit={handleSubmit} />
+          <LogForm userId={userId} teams={teams} venues={venues} onSubmit={handleSubmit} />
         </div>
       </div>
     </div>

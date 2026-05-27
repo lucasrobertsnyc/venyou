@@ -10,6 +10,9 @@ export async function logGameAction(data: {
   sport: Sport
   awayTeamName: string
   homeTeamName: string
+  awayTeamId?: string | null
+  homeTeamId?: string | null
+  venueId?: string | null
   date: string
   awayScore: number | null
   homeScore: number | null
@@ -25,6 +28,9 @@ export async function logGameAction(data: {
   const gameId = `manual-${randomUUID()}`
   const { error: gameError } = await supabase.from('games').insert({
     id: gameId,
+    away_team_id: data.awayTeamId ?? null,
+    home_team_id: data.homeTeamId ?? null,
+    venue_id: data.venueId ?? null,
     away_team_name: data.awayTeamName.trim(),
     home_team_name: data.homeTeamName.trim(),
     game_date: data.date,
