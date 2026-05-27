@@ -65,7 +65,7 @@ export default function LogForm({ teams, games, venues, userId, onSubmit }: Prop
   );
 
   const handleSubmit = useCallback(() => {
-    if (!selectedGame || !gameRating) return;
+    if (!selectedGame) return;
     onSubmit({
       userId,
       gameId: selectedGame.id,
