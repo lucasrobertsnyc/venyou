@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import type { Comment } from '@/types/venyou'
 
 export async function addFriendAction(currentUserId: string, username: string) {
   const supabase = await createClient()
@@ -119,6 +120,101 @@ export async function updateLogAction(logId: string, data: {
   if (error) return { error: error.message }
   revalidatePath('/dashboard')
   revalidatePath('/profile/[username]', 'page')
+  return { error: null }
+}
+
+// ─── Comments ────────────────────────────────────────────────────────────────
+
+export async function fetchCommentsAction(logId: string): Promise<{ comments: Comment[] }> {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return { comments: [] }
+
+  const { data: rows } = await supabase
+    .from('comments')
+    .select('*')
+    .eq('log_id', logId)
+    .order('created_at', { ascending: true })
+
+  if (!rows || rows.length === 0) return { comments: [] }
+
+  const userIds = Array.from(new Set(rows.map((r) => r.user_id)))
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, display_name, username')
+    .in('id', userIds)
+
+  const profileMap = Object.fromEntries(
+    (profiles ?? []).map((p) => [p.id, p])
+  )
+
+  return {
+    comments: rows.map((r) => ({
+      id: r.id,
+      userId: r.user_id,
+      logId: r.log_id,
+      content: r.content,
+      createdAt: r.created_at,
+      authorName: profileMap[r.user_id]?.display_name ?? 'Unknown',
+      authorUsername: profileMap[r.user_id]?.username ?? '',
+    })),
+  }
+}
+
+export async function addCommentAction(
+  logId: string,
+  content: string
+): Promise<{ error: string | null; comment?: Comment }> {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return { error: 'Not authenticated' }
+
+  const trimmed = content.trim()
+  if (!trimmed) return { error: 'Comment cannot be empty' }
+  if (trimmed.length > 500) return { error: 'Comment too long (max 500 chars)' }
+
+  const { data, error } = await supabase
+    .from('comments')
+    .insert({ user_id: session.user.id, log_id: logId, content: trimmed })
+    .select()
+    .single()
+
+  if (error) return { error: error.message }
+
+  // Fetch author name for optimistic display
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('display_name, username')
+    .eq('id', session.user.id)
+    .single()
+
+  return {
+    error: null,
+    comment: {
+      id: data.id,
+      userId: data.user_id,
+      logId: data.log_id,
+      content: data.content,
+      createdAt: data.created_at,
+      authorName: profile?.display_name ?? 'Unknown',
+      authorUsername: profile?.username ?? '',
+    },
+  }
+}
+
+export async function deleteCommentAction(
+  commentId: string
+): Promise<{ error: string | null }> {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('comments')
+    .delete()
+    .eq('id', commentId)
+
+  if (error) return { error: error.message }
   return { error: null }
 }
 

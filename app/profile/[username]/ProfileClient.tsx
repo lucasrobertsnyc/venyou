@@ -19,9 +19,10 @@ interface Props {
   teams: Team[];
   venues: Venue[];
   isOwner: boolean;
+  currentUserId?: string;
 }
 
-export default function ProfileClient({ logs: initialLogs, user, wishlist, games, teams, venues, isOwner }: Props) {
+export default function ProfileClient({ logs: initialLogs, user, wishlist, games, teams, venues, isOwner, currentUserId }: Props) {
   const [logs, setLogs] = useState<EventLog[]>(initialLogs);
   const [editingLog, setEditingLog] = useState<EventLog | null>(null);
   const [sportFilter, setSportFilter] = useState<Sport | "all">("all");
@@ -173,7 +174,7 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
             const away = teams.find((t) => t.id === game?.awayTeamId);
             const venue = venues.find((v) => v.id === game?.venueId);
             return (
-              <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} onDelete={isOwner ? handleDeleteLog : undefined} onEdit={isOwner ? handleEditLog : undefined} />
+              <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={currentUserId} onDelete={isOwner ? handleDeleteLog : undefined} onEdit={isOwner ? handleEditLog : undefined} />
             );
           })}
           {filtered.length === 0 && (

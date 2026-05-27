@@ -84,6 +84,16 @@ export interface Ranking {
   createdAt: string;
 }
 
+export interface Comment {
+  id: string;
+  userId: string;
+  logId: string;
+  content: string;
+  createdAt: string;
+  authorName: string;
+  authorUsername: string;
+}
+
 export interface WantToAttend {
   id: string;
   userId: string;

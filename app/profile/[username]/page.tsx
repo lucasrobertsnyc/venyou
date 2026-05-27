@@ -20,6 +20,7 @@ export default async function ProfilePage({ params }: Props) {
         teams={teams}
         venues={venues}
         isOwner={false}
+        currentUserId={currentUser?.id}
       />
     );
   }
@@ -41,6 +42,7 @@ export default async function ProfilePage({ params }: Props) {
       teams={teams}
       venues={venues}
       isOwner={currentUser?.id === user.id}
+      currentUserId={currentUser?.id}
     />
   );
 }

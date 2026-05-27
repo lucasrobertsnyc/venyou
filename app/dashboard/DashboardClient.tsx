@@ -205,7 +205,7 @@ export default function DashboardClient({
                 const away = teams.find((t) => t.id === game?.awayTeamId);
                 const venue = venues.find((v) => v.id === game?.venueId);
                 return (
-                  <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} onDelete={handleDeleteLog} onEdit={handleEditLog} />
+                  <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={user.id} onDelete={handleDeleteLog} onEdit={handleEditLog} />
                 );
               })}
             </div>
