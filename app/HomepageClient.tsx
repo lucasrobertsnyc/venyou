@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import Link from "next/link";
 
 const FEATURES = [
@@ -39,16 +38,6 @@ const RATING_ROWS = [
 ];
 
 export default function HomepageClient() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [team, setTeam] = useState("");
-  const [bestGame, setBestGame] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleWaitlist = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-  }, []);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -59,9 +48,8 @@ export default function HomepageClient() {
           <span className="text-emerald-400 font-black text-lg tracking-tight">Stubs</span>
           <div className="flex items-center gap-6">
             <a href="#features" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Features</a>
-            <a href="#waitlist" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Waitlist</a>
             <Link href="/login" className="text-xs uppercase tracking-widest text-zinc-400 hover:text-zinc-100 hidden sm:block transition-colors">Sign in</Link>
-            <Link href="/signup" className="text-xs uppercase tracking-widest text-zinc-400 hover:text-zinc-100 hidden sm:block transition-colors">Sign up</Link>
+            <Link href="/signup" className="text-sm font-bold text-zinc-100 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg hidden sm:block transition-colors">Sign up</Link>
             <Link href="/dashboard" className="text-sm font-bold text-emerald-400 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 px-4 py-2 rounded-lg transition-colors">
               Try demo →
             </Link>
@@ -100,12 +88,12 @@ export default function HomepageClient() {
               Build rankings. Track your sports life.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <a
-                href="#waitlist"
+              <Link
+                href="/signup"
                 className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
               >
-                Join the waitlist
-              </a>
+                Create free account
+              </Link>
               <Link
                 href="/dashboard"
                 className="border border-zinc-600 hover:border-zinc-400 text-zinc-200 hover:text-zinc-100 font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
@@ -114,10 +102,10 @@ export default function HomepageClient() {
               </Link>
             </div>
             <p className="text-xs text-zinc-600 mt-3">
-              No account needed &mdash;{" "}
-              <a href="#how-it-works" className="underline underline-offset-2 hover:text-zinc-400 transition-colors">
-                see how it works ↓
-              </a>
+              Already have an account?{" "}
+              <Link href="/login" className="underline underline-offset-2 hover:text-zinc-400 transition-colors">
+                Sign in →
+              </Link>
             </p>
           </div>
 
@@ -262,57 +250,30 @@ export default function HomepageClient() {
         </div>
       </section>
 
-      {/* Waitlist */}
-      <section id="waitlist" className="border-b border-zinc-800">
-        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-start">
-          <div>
-            <h2 className="text-4xl font-black text-zinc-100 leading-tight mb-3">
-              Get early access.
-            </h2>
-            <p className="text-zinc-500 text-sm leading-relaxed">
-              Stubs is in early development. Leave your info and
-              we&apos;ll reach out when it&apos;s ready. No spam —
-              just one email when the doors open.
-            </p>
-          </div>
-          <div>
-            {submitted ? (
-              <div className="border-l-4 border-emerald-400 pl-6 py-2">
-                <p className="text-lg font-bold text-zinc-100">You&apos;re on the list.</p>
-                <p className="text-sm text-zinc-400 mt-1">Welcome to Stubs. We&apos;ll be in touch.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleWaitlist} className="space-y-3">
-                {[
-                  { placeholder: "Your name", value: name, onChange: setName, type: "text", required: true },
-                  { placeholder: "Email address", value: email, onChange: setEmail, type: "email", required: true },
-                  { placeholder: "Favorite team (optional)", value: team, onChange: setTeam, type: "text", required: false },
-                ].map(({ placeholder, value, onChange, type, required }) => (
-                  <input
-                    key={placeholder}
-                    type={type}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    required={required}
-                    className="w-full bg-zinc-900 border border-zinc-700/60 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
-                  />
-                ))}
-                <textarea
-                  placeholder="Best game you&apos;ve ever attended? (optional)"
-                  value={bestGame}
-                  onChange={(e) => setBestGame(e.target.value)}
-                  rows={2}
-                  className="w-full bg-zinc-900 border border-zinc-700/60 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors resize-none"
-                />
-                <button
-                  type="submit"
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 rounded-lg text-sm transition-colors"
-                >
-                  Join the waitlist
-                </button>
-              </form>
-            )}
+      {/* Sign-up CTA */}
+      <section className="border-b border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6 py-24 text-center">
+          <p className="text-xs uppercase tracking-widest text-emerald-400 mb-4">Free to use</p>
+          <h2 className="text-5xl lg:text-6xl font-black text-zinc-100 leading-[0.92] tracking-tight mb-6">
+            Your sports passport<br />starts here.
+          </h2>
+          <p className="text-zinc-500 text-base leading-relaxed mb-10 max-w-sm mx-auto">
+            Create an account and start logging every game you&apos;ve ever been to.
+            It takes two minutes.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/signup"
+              className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-4 rounded-xl text-sm transition-colors"
+            >
+              Create free account →
+            </Link>
+            <Link
+              href="/login"
+              className="border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-zinc-100 font-semibold px-8 py-4 rounded-xl text-sm transition-colors"
+            >
+              Sign in
+            </Link>
           </div>
         </div>
       </section>
@@ -326,7 +287,7 @@ export default function HomepageClient() {
           </div>
           <div className="flex gap-8 text-xs text-zinc-600 uppercase tracking-widest">
             <a href="#features" className="hover:text-zinc-400 transition-colors">Features</a>
-            <a href="#waitlist" className="hover:text-zinc-400 transition-colors">Waitlist</a>
+            <Link href="/signup" className="hover:text-zinc-400 transition-colors">Sign up</Link>
             <Link href="/dashboard" className="hover:text-zinc-400 transition-colors">Demo</Link>
           </div>
           <p className="text-xs text-zinc-700 uppercase tracking-widest">Built for fans.</p>

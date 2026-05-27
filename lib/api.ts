@@ -103,12 +103,12 @@ function mapRanking(r: any): Ranking {
 
 export async function getCurrentUser(): Promise<User | null> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user) return null
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.id)
+    .eq('id', session.user.id)
     .single()
   return profile ? mapProfile(profile) : null
 }
@@ -274,6 +274,37 @@ export async function getWishlist(userId: string): Promise<WantToAttend[]> {
     venueId: w.venue_id ?? undefined,
     note: w.note ?? '',
   }))
+}
+
+// ─── Friends ─────────────────────────────────────────────────────────────────
+
+export async function getFriends(userId: string): Promise<User[]> {
+  const supabase = await createClient()
+  const { data: friendships } = await supabase
+    .from('friendships')
+    .select('friend_id')
+    .eq('user_id', userId)
+  if (!friendships || friendships.length === 0) return []
+  const friendIds = friendships.map((f) => f.friend_id)
+  const { data } = await supabase.from('profiles').select('*').in('id', friendIds)
+  return (data ?? []).map(mapProfile)
+}
+
+export async function getFriendActivity(userId: string): Promise<EventLog[]> {
+  const supabase = await createClient()
+  const { data: friendships } = await supabase
+    .from('friendships')
+    .select('friend_id')
+    .eq('user_id', userId)
+  if (!friendships || friendships.length === 0) return []
+  const friendIds = friendships.map((f) => f.friend_id)
+  const { data } = await supabase
+    .from('event_logs')
+    .select('*')
+    .in('user_id', friendIds)
+    .order('created_at', { ascending: false })
+    .limit(10)
+  return (data ?? []).map(mapEventLog)
 }
 
 // ─── Legacy sync helpers (kept for call-site compatibility) ──────────────────

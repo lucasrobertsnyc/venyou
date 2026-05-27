@@ -33,7 +33,7 @@ export default function SignupClient() {
 
       setLoading(true);
       const supabase = createClient();
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -47,6 +47,13 @@ export default function SignupClient() {
         return;
       }
 
+      // If a session came back, email confirmation is disabled — go straight to dashboard
+      if (data.session) {
+        window.location.href = "/dashboard";
+        return;
+      }
+
+      // Otherwise email confirmation is required — show the check-your-email screen
       setDone(true);
     },
     [displayName, username, email, password]

@@ -228,84 +228,259 @@ insert into public.venues (id, sport_id, name, slug, city, state, capacity) valu
   ('v-q2', 'MLS', 'Q2 Stadium', 'q2-stadium', 'Austin', 'TX', 20738);
 
 -- ============================================================
--- GAMES
+-- GAMES  (run via: INSERT ... ON CONFLICT (id) DO UPDATE SET ...)
 -- ============================================================
 insert into public.games (id, home_team_id, away_team_id, venue_id, game_date, home_score, away_score) values
-  -- NFL
-  ('g-nfl-1', 'nfl-kc', 'nfl-buf', 'v-arrowhead', '2024-01-21', 27, 24),
-  ('g-nfl-2', 'nfl-dal', 'nfl-phi', 'v-att', '2023-12-10', 33, 13),
-  ('g-nfl-3', 'nfl-sf', 'nfl-sea', 'v-levis', '2023-11-19', 31, 13),
-  ('g-nfl-4', 'nfl-kc', 'nfl-ne', 'v-arrowhead', '2023-10-05', 27, 17),
-  ('g-nfl-5', 'nfl-phi', 'nfl-nyg', 'v-linc', '2023-10-22', 14, 12),
-  ('g-nfl-6', 'nfl-pit', 'nfl-bal', 'v-acrisure', '2023-11-02', 17, 20),
-  ('g-nfl-7', 'nfl-gb', 'nfl-chi', 'v-lambeau', '2023-09-18', 38, 20),
-  ('g-nfl-8', 'nfl-ne', 'nfl-nyj', 'v-gillette', '2023-10-01', 15, 10),
-  ('g-nfl-9', 'nfl-lv', 'nfl-kc', 'v-allegiant', '2023-10-27', 20, 31),
-  ('g-nfl-10', 'nfl-chi', 'nfl-min', 'v-soldier', '2024-01-07', 13, 23),
-  ('g-nfl-11', 'nfl-bal', 'nfl-kc', 'v-mt-bank', '2024-01-28', 24, 17),
-  ('g-nfl-12', 'nfl-kc', 'nfl-cin', 'v-arrowhead', '2023-12-31', 25, 17),
-  ('g-nfl-13', 'nfl-sf', 'nfl-dal', 'v-levis', '2024-01-14', 19, 12),
-  ('g-nfl-14', 'nfl-nyj', 'nfl-buf', 'v-metlife', '2023-11-06', 32, 6),
-  ('g-nfl-15', 'nfl-phi', 'nfl-dal', 'v-linc', '2023-11-05', 28, 23),
-  ('g-nfl-16', 'nfl-buf', 'nfl-ne', 'v-metlife', '2023-12-17', 27, 21),
-  -- MLB
-  ('g-mlb-1', 'mlb-nyy', 'mlb-bos', 'v-yankee', '2024-05-17', 8, 4),
-  ('g-mlb-2', 'mlb-chc', 'mlb-stl', 'v-wrigley', '2024-06-08', 5, 3),
-  ('g-mlb-3', 'mlb-bos', 'mlb-nyy', 'v-fenway', '2024-07-12', 6, 5),
-  ('g-mlb-4', 'mlb-lad', 'mlb-sf', 'v-dodger', '2024-06-02', 7, 3),
-  ('g-mlb-5', 'mlb-nym', 'mlb-phi', 'v-citi', '2024-07-26', 4, 7),
-  ('g-mlb-6', 'mlb-atl', 'mlb-nym', 'v-truist', '2024-05-28', 9, 2),
-  ('g-mlb-7', 'mlb-sf', 'mlb-lad', 'v-oracle', '2024-06-07', 5, 6),
-  ('g-mlb-8', 'mlb-bal', 'mlb-nyy', 'v-camden', '2024-08-10', 3, 5),
-  ('g-mlb-9', 'mlb-tex', 'mlb-hou', 'v-globe-life', '2024-05-04', 4, 3),
-  ('g-mlb-10', 'mlb-stl', 'mlb-chc', 'v-busch', '2024-06-21', 7, 4),
-  ('g-mlb-11', 'mlb-pit', 'mlb-cin', 'v-pnc', '2024-07-04', 5, 2),
-  ('g-mlb-12', 'mlb-nyy', 'mlb-bos', 'v-yankee', '2023-09-01', 5, 4),
-  ('g-mlb-13', 'mlb-lad', 'mlb-sd', 'v-dodger', '2023-07-22', 6, 1),
-  ('g-mlb-14', 'mlb-chc', 'mlb-mil', 'v-wrigley', '2023-08-14', 4, 3),
-  ('g-mlb-15', 'mlb-bos', 'mlb-tor', 'v-fenway', '2023-06-18', 7, 6),
-  -- NBA
-  ('g-nba-1', 'nba-nyk', 'nba-bos', 'v-msg', '2024-02-05', 110, 115),
-  ('g-nba-2', 'nba-bos', 'nba-mia', 'v-td-garden', '2024-01-28', 127, 112),
-  ('g-nba-3', 'nba-lal', 'nba-gsw', 'v-crypto', '2024-02-22', 121, 128),
-  ('g-nba-4', 'nba-chi', 'nba-mil', 'v-united-center', '2024-01-15', 108, 115),
-  ('g-nba-5', 'nba-gsw', 'nba-lal', 'v-chase', '2024-03-09', 134, 123),
-  ('g-nba-6', 'nba-mia', 'nba-bos', 'v-kaseya', '2024-02-14', 110, 107),
-  ('g-nba-7', 'nba-den', 'nba-okc', 'v-ball-arena', '2024-03-20', 116, 110),
-  ('g-nba-8', 'nba-mil', 'nba-chi', 'v-fiserv', '2024-01-22', 129, 118),
-  ('g-nba-9', 'nba-atl', 'nba-nyk', 'v-state-farm-arena', '2024-02-09', 119, 124),
-  ('g-nba-10', 'nba-dal', 'nba-lal', 'v-aac', '2024-02-26', 144, 122),
-  ('g-nba-11', 'nba-nyk', 'nba-phi', 'v-msg', '2023-11-05', 121, 115),
-  ('g-nba-12', 'nba-bos', 'nba-nyk', 'v-td-garden', '2023-12-08', 132, 109),
-  ('g-nba-13', 'nba-chi', 'nba-nyk', 'v-united-center', '2023-10-28', 113, 119),
-  ('g-nba-14', 'nba-gsw', 'nba-lac', 'v-chase', '2023-11-17', 127, 113),
-  ('g-nba-15', 'nba-mia', 'nba-mil', 'v-kaseya', '2023-12-19', 101, 107),
-  -- NHL
-  ('g-nhl-1', 'nhl-pit', 'nhl-phi', 'v-ppg-paints', '2024-02-17', 5, 2),
-  ('g-nhl-2', 'nhl-nyr', 'nhl-nyi', 'v-msg', '2024-02-05', 3, 1),
-  ('g-nhl-3', 'nhl-bos', 'nhl-tor', 'v-td-garden', '2024-01-18', 4, 2),
-  ('g-nhl-4', 'nhl-mtl', 'nhl-tor', 'v-bell-centre', '2024-03-09', 2, 4),
-  ('g-nhl-5', 'nhl-tor', 'nhl-bos', 'v-scotiabank', '2024-02-12', 3, 5),
-  ('g-nhl-6', 'nhl-phi', 'nhl-pit', 'v-wells-fargo', '2024-02-29', 3, 4),
-  ('g-nhl-7', 'nhl-wsh', 'nhl-pit', 'v-capital-one', '2024-01-25', 5, 3),
-  ('g-nhl-8', 'nhl-vgk', 'nhl-col', 'v-t-mobile', '2024-02-20', 4, 1),
-  ('g-nhl-9', 'nhl-stl', 'nhl-chi', 'v-enterprise', '2024-03-02', 5, 2),
-  ('g-nhl-10', 'nhl-chi', 'nhl-stl', 'v-united-center', '2024-01-30', 2, 3),
-  ('g-nhl-11', 'nhl-bos', 'nhl-nyr', 'v-td-garden', '2023-11-22', 4, 3),
-  ('g-nhl-12', 'nhl-pit', 'nhl-wsh', 'v-ppg-paints', '2023-12-14', 3, 2),
-  ('g-nhl-13', 'nhl-nyr', 'nhl-bos', 'v-msg', '2023-10-26', 5, 3),
-  ('g-nhl-14', 'nhl-vgk', 'nhl-edm', 'v-t-mobile', '2023-11-28', 3, 2),
-  ('g-nhl-15', 'nhl-tor', 'nhl-mtl', 'v-scotiabank', '2023-12-02', 4, 1),
-  -- MLS
-  ('g-mls-1', 'mls-atl', 'mls-mia', 'v-mb-stadium', '2024-03-16', 3, 1),
-  ('g-mls-2', 'mls-min', 'mls-sea', 'v-allianz', '2024-04-06', 2, 0),
-  ('g-mls-3', 'mls-por', 'mls-sea', 'v-providence', '2024-05-11', 1, 1),
-  ('g-mls-4', 'mls-sea', 'mls-la', 'v-lumen', '2024-05-25', 2, 0),
-  ('g-mls-5', 'mls-nsh', 'mls-atl', 'v-geodis', '2024-04-20', 3, 2),
-  ('g-mls-6', 'mls-atx', 'mls-dal', 'v-q2', '2024-06-01', 2, 1),
-  ('g-mls-7', 'mls-atl', 'mls-dc', 'v-mb-stadium', '2023-07-08', 4, 0),
-  ('g-mls-8', 'mls-sea', 'mls-por', 'v-lumen', '2023-09-16', 3, 1),
-  ('g-mls-9', 'mls-min', 'mls-chi', 'v-allianz', '2023-08-26', 2, 1),
-  ('g-mls-10', 'mls-nsh', 'mls-sea', 'v-geodis', '2023-10-07', 1, 0),
-  ('g-mls-11', 'mls-por', 'mls-la', 'v-providence', '2023-08-05', 2, 2),
-  ('g-mls-12', 'mls-atx', 'mls-hou', 'v-q2', '2023-06-17', 3, 0);
+
+  -- ══════════════════════════════════════════════════════
+  --  NFL  —  2023-24 season + playoffs
+  -- ══════════════════════════════════════════════════════
+
+  -- Arrowhead Stadium (Chiefs home)
+  ('g-nfl-1',  'nfl-kc',  'nfl-buf', 'v-arrowhead', '2024-01-21', 27, 24),   -- AFC Divisional Playoff (OT)
+  ('g-nfl-4',  'nfl-kc',  'nfl-ne',  'v-arrowhead', '2023-10-05', 27, 17),   -- Reg season
+  ('g-nfl-12', 'nfl-kc',  'nfl-cin', 'v-arrowhead', '2023-12-31', 25, 17),   -- Reg season week 17
+  ('g-nfl-kc-lac', 'nfl-kc', 'nfl-lac', 'v-arrowhead', '2023-11-20', 31, 17), -- Reg season
+  ('g-nfl-kc-lv',  'nfl-kc', 'nfl-lv',  'v-arrowhead', '2023-12-25', 20, 14), -- Christmas Day
+
+  -- Allegiant Stadium (Raiders home + Super Bowl LVIII site)
+  ('g-nfl-9',     'nfl-lv', 'nfl-kc',  'v-allegiant', '2023-10-27', 20, 31),  -- Reg season, KC wins in LV
+  ('g-nfl-sb58',  'nfl-kc', 'nfl-sf',  'v-allegiant', '2024-02-11', 25, 22),  -- Super Bowl LVIII (OT, KC wins)
+  ('g-nfl-lv-ne', 'nfl-lv', 'nfl-ne',  'v-allegiant', '2023-10-15', 21, 17),  -- Reg season
+
+  -- AT&T Stadium (Cowboys home)
+  ('g-nfl-2',     'nfl-dal', 'nfl-phi', 'v-att', '2023-12-10', 33, 13),       -- Reg season, DAL dominates
+  ('g-nfl-dal-wc','nfl-dal', 'nfl-gb',  'v-att', '2024-01-14', 32, 48),       -- Wild Card: Packers upset Cowboys
+  ('g-nfl-dal-was','nfl-dal','nfl-was', 'v-att', '2023-10-22', 34,  6),       -- Reg season
+  ('g-nfl-dal-lar','nfl-dal','nfl-lar', 'v-att', '2023-09-17', 20, 19),       -- Reg season
+
+  -- MetLife Stadium (Giants & Jets home)
+  ('g-nfl-14',    'nfl-nyj', 'nfl-buf', 'v-metlife', '2023-11-06', 32,  6),   -- MNF: Jets dominate Bills
+  ('g-nfl-nyg-phi','nfl-nyg','nfl-phi', 'v-metlife', '2023-09-21', 13, 26),   -- Reg season, PHI wins
+  ('g-nfl-nyj-ne','nfl-nyj', 'nfl-ne',  'v-metlife', '2023-12-17', 17,  3),   -- Reg season
+  ('g-nfl-16',    'nfl-nyg', 'nfl-ne',  'v-metlife', '2023-11-26', 10,  6),   -- Reg season, low-scoring
+
+  -- Lambeau Field (Packers home)
+  ('g-nfl-7',     'nfl-gb',  'nfl-chi', 'v-lambeau', '2023-09-18', 38, 20),   -- Reg season, Jordan Love debut at home
+  ('g-nfl-gb-det','nfl-gb',  'nfl-det', 'v-lambeau', '2023-11-23', 22, 29),   -- Reg season: Lions win at Lambeau
+  ('g-nfl-gb-min','nfl-gb',  'nfl-min', 'v-lambeau', '2023-12-23', 33, 10),   -- Reg season
+
+  -- Levi's Stadium (49ers home)
+  ('g-nfl-3',      'nfl-sf', 'nfl-sea', 'v-levis', '2023-11-19', 31, 13),     -- Reg season
+  ('g-nfl-sf-dal', 'nfl-sf', 'nfl-dal', 'v-levis', '2023-10-08', 42, 10),     -- Reg season: SF crushes DAL
+  ('g-nfl-13',     'nfl-sf', 'nfl-gb',  'v-levis', '2024-01-20', 24, 21),     -- NFC Divisional Playoff
+  ('g-nfl-nfc-champ','nfl-sf','nfl-det','v-levis', '2024-01-28', 34, 31),      -- NFC Championship: Lions heartbreak
+
+  -- Lincoln Financial Field (Eagles home)
+  ('g-nfl-5',     'nfl-phi', 'nfl-nyg', 'v-linc', '2023-10-22', 14, 12),     -- Reg season
+  ('g-nfl-15',    'nfl-phi', 'nfl-dal', 'v-linc', '2023-11-05', 28, 23),     -- Reg season
+  ('g-nfl-phi-sf','nfl-phi', 'nfl-sf',  'v-linc', '2023-12-03', 17, 21),     -- SF wins in Philly
+
+  -- Soldier Field (Bears home)
+  ('g-nfl-10',    'nfl-chi', 'nfl-min', 'v-soldier', '2024-01-07', 13, 23),   -- Week 18
+  ('g-nfl-chi-det','nfl-chi','nfl-det', 'v-soldier', '2023-11-19', 13, 31),   -- Lions win in Chicago
+
+  -- Gillette Stadium (Patriots home)
+  ('g-nfl-8',     'nfl-ne', 'nfl-nyj', 'v-gillette', '2023-10-01', 15, 10),  -- Reg season
+  ('g-nfl-ne-buf','nfl-ne', 'nfl-buf', 'v-gillette', '2023-12-17', 21, 27),  -- Reg season: BUF wins in NE
+
+  -- M&T Bank Stadium (Ravens home)
+  ('g-nfl-bal-pit','nfl-bal','nfl-pit', 'v-mt-bank', '2023-11-16', 34, 17),   -- TNF: BAL dominant
+  ('g-nfl-bal-jax','nfl-bal','nfl-jax', 'v-mt-bank', '2024-01-20', 34, 10),   -- AFC Divisional: BAL routs JAX
+  ('g-nfl-11',    'nfl-bal', 'nfl-kc',  'v-mt-bank', '2024-01-28', 10, 17),   -- AFC Championship: KC wins in Baltimore
+
+  -- Acrisure Stadium (Steelers home)
+  ('g-nfl-6',     'nfl-pit', 'nfl-bal', 'v-acrisure', '2023-11-02', 17, 20),  -- Reg season: BAL wins in PIT
+  ('g-nfl-pit-cle','nfl-pit','nfl-cle', 'v-acrisure', '2023-11-19', 13, 10),  -- Reg season
+
+  -- SoFi Stadium (Rams & Chargers home)
+  ('g-nfl-lar-sf', 'nfl-lar','nfl-sf',  'v-sofi', '2023-10-19', 16, 24),      -- SF wins at SoFi
+  ('g-nfl-lac-kc', 'nfl-lac','nfl-kc',  'v-sofi', '2023-11-20', 10, 31),      -- KC wins at SoFi
+
+  -- ══════════════════════════════════════════════════════
+  --  MLB  —  2023 & 2024 regular season + 2024 World Series
+  -- ══════════════════════════════════════════════════════
+
+  -- Yankee Stadium
+  ('g-mlb-1',    'mlb-nyy','mlb-bos', 'v-yankee', '2024-05-17',  8,  4),      -- Reg season: NYY beats BOS
+  ('g-mlb-12',   'mlb-nyy','mlb-bos', 'v-yankee', '2023-09-01',  5,  4),      -- Reg season: NYY edges BOS
+  ('g-mlb-nyy-tor','mlb-nyy','mlb-tor','v-yankee', '2024-07-05',  6,  2),      -- 4th of July
+  ('g-mlb-ws3',  'mlb-nyy','mlb-lad', 'v-yankee', '2024-10-28',  2,  4),      -- 2024 World Series Game 3 (LAD wins)
+  ('g-mlb-ws4',  'mlb-nyy','mlb-lad', 'v-yankee', '2024-10-29', 11,  4),      -- 2024 World Series Game 4 (NYY wins – their only win)
+  ('g-mlb-ws5',  'mlb-nyy','mlb-lad', 'v-yankee', '2024-10-30',  6,  7),      -- 2024 World Series Game 5 (LAD clinch)
+
+  -- Fenway Park
+  ('g-mlb-3',    'mlb-bos','mlb-nyy', 'v-fenway', '2024-07-12',  6,  5),      -- Reg season: BOS edges NYY
+  ('g-mlb-15',   'mlb-bos','mlb-tor', 'v-fenway', '2023-06-18',  7,  6),      -- Reg season
+  ('g-mlb-bos-nyy-jun','mlb-bos','mlb-nyy','v-fenway','2024-06-18', 7, 2),    -- Reg season: BOS big win
+
+  -- Dodger Stadium
+  ('g-mlb-4',    'mlb-lad','mlb-sf',  'v-dodger', '2024-06-02',  7,  3),      -- Reg season: LAD beats SF
+  ('g-mlb-13',   'mlb-lad','mlb-sd',  'v-dodger', '2023-07-22',  6,  1),      -- Reg season
+  ('g-mlb-ws1',  'mlb-lad','mlb-nyy', 'v-dodger', '2024-10-25',  6,  3),      -- 2024 WS Game 1 (Freeman walk-off grand slam)
+  ('g-mlb-ws2',  'mlb-lad','mlb-nyy', 'v-dodger', '2024-10-26',  4,  2),      -- 2024 WS Game 2 (LAD leads series 2-0)
+
+  -- Wrigley Field
+  ('g-mlb-2',    'mlb-chc','mlb-stl', 'v-wrigley', '2024-06-08',  5,  3),     -- Reg season
+  ('g-mlb-14',   'mlb-chc','mlb-mil', 'v-wrigley', '2023-08-14',  4,  3),     -- Reg season
+  ('g-mlb-chc-nyy','mlb-chc','mlb-nyy','v-wrigley','2024-05-04',  4,  2),     -- Interleague
+
+  -- Citi Field
+  ('g-mlb-5',    'mlb-nym','mlb-phi', 'v-citi', '2024-07-26',  4,  7),        -- Reg season: PHI wins at Citi
+  ('g-mlb-nym-atl','mlb-nym','mlb-atl','v-citi','2024-06-15',  5,  2),        -- Reg season
+  ('g-mlb-subway','mlb-nym','mlb-nyy','v-citi', '2024-07-23',  3,  4),        -- Subway Series: NYY wins
+
+  -- Truist Park
+  ('g-mlb-6',    'mlb-atl','mlb-nym', 'v-truist', '2024-05-28',  9,  2),      -- Reg season: ATL dominates
+  ('g-mlb-atl-phi','mlb-atl','mlb-phi','v-truist','2024-06-30',  5,  4),      -- Reg season
+
+  -- Oracle Park
+  ('g-mlb-7',    'mlb-sf','mlb-lad',  'v-oracle', '2024-06-07',  5,  6),      -- Reg season: LAD wins in SF
+  ('g-mlb-sf-sd','mlb-sf', 'mlb-sd',  'v-oracle', '2023-09-05',  4,  3),      -- Reg season
+
+  -- Camden Yards
+  ('g-mlb-8',    'mlb-bal','mlb-nyy', 'v-camden', '2024-08-10',  3,  5),      -- Reg season: NYY wins at Camden
+  ('g-mlb-bal-bos','mlb-bal','mlb-bos','v-camden','2024-06-14',  7,  2),      -- Reg season: BAL dominates
+
+  -- Globe Life Field
+  ('g-mlb-9',    'mlb-tex','mlb-hou', 'v-globe-life', '2024-05-04',  4,  3),  -- Lone Star Series
+  ('g-mlb-tex-nyy','mlb-tex','mlb-nyy','v-globe-life','2023-07-04', 5,  2),   -- 4th of July interleague
+
+  -- Busch Stadium
+  ('g-mlb-10',   'mlb-stl','mlb-chc', 'v-busch', '2024-06-21',  7,  4),      -- Reg season
+  ('g-mlb-stl-mil','mlb-stl','mlb-mil','v-busch','2024-05-11',  3,  5),       -- Brewers win at Busch
+
+  -- PNC Park
+  ('g-mlb-11',   'mlb-pit','mlb-cin', 'v-pnc', '2024-07-04',  5,  2),        -- 4th of July
+  ('g-mlb-pit-chc','mlb-pit','mlb-chc','v-pnc','2023-08-19',  4,  6),        -- Cubs win at PNC
+
+  -- ══════════════════════════════════════════════════════
+  --  NBA  —  2023-24 regular season + 2024 Finals
+  -- ══════════════════════════════════════════════════════
+
+  -- Madison Square Garden (Knicks)
+  ('g-nba-1',    'nba-nyk','nba-bos', 'v-msg', '2024-02-05', 110, 115),       -- Celtics win at MSG
+  ('g-nba-11',   'nba-nyk','nba-phi', 'v-msg', '2023-11-05', 121, 115),       -- Knicks beat Sixers
+  ('g-nba-nyk-mia','nba-nyk','nba-mia','v-msg','2024-03-10', 117, 113),       -- Knicks beat Heat
+  ('g-nba-nyk-bkn','nba-nyk','nba-bkn','v-msg','2023-11-20', 120,  97),       -- Knicks beat Nets (rivalry)
+
+  -- TD Garden (Celtics)
+  ('g-nba-2',    'nba-bos','nba-mia', 'v-td-garden', '2024-01-28', 127, 112), -- Celtics over Heat
+  ('g-nba-12',   'nba-bos','nba-nyk', 'v-td-garden', '2023-12-08', 132, 109), -- Celtics cruise past Knicks
+  ('g-nba-f24-g1','nba-bos','nba-dal','v-td-garden', '2024-06-06', 107,  89), -- 2024 NBA Finals Game 1 (BOS wins)
+  ('g-nba-f24-g2','nba-bos','nba-dal','v-td-garden', '2024-06-09', 105,  98), -- 2024 NBA Finals Game 2 (BOS leads 2-0)
+  ('g-nba-f24-g5','nba-bos','nba-dal','v-td-garden', '2024-06-17', 106,  88), -- 2024 NBA Finals Game 5 (Celtics clinch)
+
+  -- Crypto.com Arena (Lakers)
+  ('g-nba-3',    'nba-lal','nba-gsw', 'v-crypto', '2024-02-22', 121, 128),    -- Warriors win at Crypto
+  ('g-nba-lal-den','nba-lal','nba-den','v-crypto','2024-03-02', 127, 115),    -- Lakers over Nuggets
+
+  -- United Center (Bulls)
+  ('g-nba-4',    'nba-chi','nba-mil', 'v-united-center', '2024-01-15', 108, 115), -- Bucks win in Chicago
+  ('g-nba-13',   'nba-chi','nba-nyk', 'v-united-center', '2023-10-28', 113, 119), -- Knicks win in Chicago
+
+  -- Chase Center (Warriors)
+  ('g-nba-5',    'nba-gsw','nba-lal', 'v-chase', '2024-03-09', 134, 123),     -- Warriors over Lakers
+  ('g-nba-14',   'nba-gsw','nba-lac', 'v-chase', '2023-11-17', 127, 113),     -- Warriors over Clippers
+
+  -- Kaseya Center (Heat)
+  ('g-nba-6',    'nba-mia','nba-bos', 'v-kaseya', '2024-02-14', 110, 107),    -- Heat edge Celtics
+  ('g-nba-15',   'nba-mia','nba-mil', 'v-kaseya', '2023-12-19', 101, 107),    -- Bucks win in Miami
+
+  -- Ball Arena (Nuggets)
+  ('g-nba-7',    'nba-den','nba-okc', 'v-ball-arena', '2024-03-20', 116, 110), -- Nuggets over Thunder
+
+  -- Fiserv Forum (Bucks)
+  ('g-nba-8',    'nba-mil','nba-chi', 'v-fiserv', '2024-01-22', 129, 118),    -- Bucks over Bulls
+
+  -- State Farm Arena (Hawks)
+  ('g-nba-9',    'nba-atl','nba-nyk', 'v-state-farm-arena', '2024-02-09', 119, 124), -- Knicks win in Atlanta
+
+  -- American Airlines Center (Mavericks)
+  ('g-nba-10',   'nba-dal','nba-lal', 'v-aac', '2024-02-26', 144, 122),       -- Mavs blow out Lakers
+  ('g-nba-f24-g3','nba-dal','nba-bos','v-aac', '2024-06-12', 106,  99),       -- 2024 NBA Finals Game 3 (DAL's only win)
+  ('g-nba-f24-g4','nba-dal','nba-bos','v-aac', '2024-06-14',  77, 107),       -- 2024 NBA Finals Game 4 (BOS rout)
+
+  -- ══════════════════════════════════════════════════════
+  --  NHL  —  2023-24 regular season
+  -- ══════════════════════════════════════════════════════
+
+  -- PPG Paints Arena (Penguins)
+  ('g-nhl-1',  'nhl-pit','nhl-phi', 'v-ppg-paints', '2024-02-17', 5, 2),      -- PIT beats PHI
+  ('g-nhl-12', 'nhl-pit','nhl-wsh', 'v-ppg-paints', '2023-12-14', 3, 2),      -- Penguins edge Caps
+  ('g-nhl-pit-nyr','nhl-pit','nhl-nyr','v-ppg-paints','2024-01-06', 4, 3),    -- Penguins beat Rangers
+
+  -- MSG (Rangers)
+  ('g-nhl-2',  'nhl-nyr','nhl-nyi', 'v-msg', '2024-02-05', 3, 1),             -- Rangers beat Islanders (rivalry)
+  ('g-nhl-13', 'nhl-nyr','nhl-bos', 'v-msg', '2023-10-26', 5, 3),             -- Rangers over Bruins
+  ('g-nhl-nyr-pit','nhl-nyr','nhl-pit','v-msg','2024-03-19', 4, 1),           -- Rangers dominate Penguins
+
+  -- TD Garden (Bruins)
+  ('g-nhl-3',  'nhl-bos','nhl-tor', 'v-td-garden', '2024-01-18', 4, 2),       -- Bruins beat Maple Leafs
+  ('g-nhl-11', 'nhl-bos','nhl-nyr', 'v-td-garden', '2023-11-22', 4, 3),       -- Bruins edge Rangers
+  ('g-nhl-bos-fla','nhl-bos','nhl-fla','v-td-garden','2024-02-15', 3, 2),     -- Bruins over Panthers
+
+  -- Bell Centre (Canadiens)
+  ('g-nhl-4',  'nhl-mtl','nhl-tor', 'v-bell-centre', '2024-03-09', 2, 4),     -- TOR wins in Montreal
+  ('g-nhl-mtl-bos','nhl-mtl','nhl-bos','v-bell-centre','2023-11-11', 3, 5),   -- Bruins win in Montreal
+
+  -- Scotiabank Arena (Maple Leafs)
+  ('g-nhl-5',  'nhl-tor','nhl-bos', 'v-scotiabank', '2024-02-12', 3, 5),      -- Bruins win in Toronto
+  ('g-nhl-15', 'nhl-tor','nhl-mtl', 'v-scotiabank', '2023-12-02', 4, 1),      -- TOR over MTL (Battle of Ontario/Quebec)
+
+  -- Wells Fargo Center (Flyers)
+  ('g-nhl-6',  'nhl-phi','nhl-pit', 'v-wells-fargo', '2024-02-29', 3, 4),     -- Penguins win in Philly
+
+  -- Capital One Arena (Capitals)
+  ('g-nhl-7',  'nhl-wsh','nhl-pit', 'v-capital-one', '2024-01-25', 5, 3),     -- Caps beat Penguins
+  ('g-nhl-wsh-nyr','nhl-wsh','nhl-nyr','v-capital-one','2024-02-08', 4, 2),   -- Caps beat Rangers
+
+  -- T-Mobile Arena (Golden Knights)
+  ('g-nhl-8',  'nhl-vgk','nhl-col', 'v-t-mobile', '2024-02-20', 4, 1),        -- VGK over Avalanche
+  ('g-nhl-14', 'nhl-vgk','nhl-edm', 'v-t-mobile', '2023-11-28', 3, 2),        -- VGK over Oilers
+
+  -- Enterprise Center (Blues)
+  ('g-nhl-9',  'nhl-stl','nhl-chi', 'v-enterprise', '2024-03-02', 5, 2),      -- Blues over Blackhawks
+  ('g-nhl-10', 'nhl-chi','nhl-stl', 'v-united-center', '2024-01-30', 2, 3),   -- Blues win in Chicago
+
+  -- ══════════════════════════════════════════════════════
+  --  MLS  —  2023 & 2024 seasons
+  -- ══════════════════════════════════════════════════════
+
+  -- Mercedes-Benz Stadium (Atlanta United)
+  ('g-mls-1',  'mls-atl','mls-mia', 'v-mb-stadium', '2024-03-16', 3, 1),      -- ATL beats Inter Miami
+  ('g-mls-7',  'mls-atl','mls-dc',  'v-mb-stadium', '2023-07-08', 4, 0),      -- ATL routs DC United
+  ('g-mls-atl-por','mls-atl','mls-por','v-mb-stadium','2024-05-04', 2, 1),    -- ATL beats Portland
+
+  -- Allianz Field (Minnesota United)
+  ('g-mls-2',  'mls-min','mls-sea', 'v-allianz', '2024-04-06', 2, 0),         -- MNUFC beats Sounders
+  ('g-mls-9',  'mls-min','mls-chi', 'v-allianz', '2023-08-26', 2, 1),         -- MNUFC beats Fire
+  ('g-mls-min-rsl','mls-min','mls-rsl','v-allianz','2024-06-22', 3, 1),       -- MNUFC beats RSL
+
+  -- Providence Park (Portland Timbers)
+  ('g-mls-3',  'mls-por','mls-sea', 'v-providence', '2024-05-11', 1, 1),      -- Cascadia rivalry draw
+  ('g-mls-11', 'mls-por','mls-la',  'v-providence', '2023-08-05', 2, 2),      -- POR draws with LA Galaxy
+  ('g-mls-por-skc','mls-por','mls-skc','v-providence','2024-07-13', 2, 0),    -- POR beats Sporting KC
+
+  -- Lumen Field (Seattle Sounders)
+  ('g-mls-4',  'mls-sea','mls-la',  'v-lumen', '2024-05-25', 2, 0),           -- SEA beats LA Galaxy
+  ('g-mls-8',  'mls-sea','mls-por', 'v-lumen', '2023-09-16', 3, 1),           -- SEA beats POR (Cascadia)
+  ('g-mls-sea-van','mls-sea','mls-van','v-lumen','2024-06-08', 4, 0),         -- SEA dominates Vancouver
+
+  -- GEODIS Park (Nashville SC)
+  ('g-mls-5',  'mls-nsh','mls-atl', 'v-geodis', '2024-04-20', 3, 2),          -- NSH edges ATL
+  ('g-mls-10', 'mls-nsh','mls-sea', 'v-geodis', '2023-10-07', 1, 0),          -- NSH beats SEA
+  ('g-mls-nsh-cin','mls-nsh','mls-cin','v-geodis','2024-05-18', 2, 1),        -- NSH beats FC Cincinnati
+
+  -- Q2 Stadium (Austin FC)
+  ('g-mls-6',  'mls-atx','mls-dal', 'v-q2', '2024-06-01', 2, 1),              -- Austin beats FC Dallas
+  ('g-mls-12', 'mls-atx','mls-hou', 'v-q2', '2023-06-17', 3, 0),              -- Austin beats Houston Dynamo
+  ('g-mls-atx-skc','mls-atx','mls-skc','v-q2','2024-07-20', 1, 0)             -- Austin beats Sporting KC
+
+on conflict (id) do update set
+  home_team_id = excluded.home_team_id,
+  away_team_id = excluded.away_team_id,
+  venue_id     = excluded.venue_id,
+  game_date    = excluded.game_date,
+  home_score   = excluded.home_score,
+  away_score   = excluded.away_score;

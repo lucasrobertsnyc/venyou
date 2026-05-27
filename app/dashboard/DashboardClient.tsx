@@ -1,24 +1,33 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useCallback, useTransition } from "react";
 import Link from "next/link";
 import type { EventLog, User, Game, Team, Venue } from "@/types/venyou";
 import { formatScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import ActivityFeed from "@/components/ActivityFeed";
 import LogoutButton from "@/components/LogoutButton";
+import { addFriendAction, removeFriendAction } from "@/app/dashboard/actions";
 
 interface Props {
   logs: EventLog[];
   user: User;
-  activity: EventLog[];
-  users: User[];
+  friends: User[];
+  friendActivity: EventLog[];
   games: Game[];
   teams: Team[];
   venues: Venue[];
 }
 
-export default function DashboardClient({ logs, user, activity, users, games, teams, venues }: Props) {
+export default function DashboardClient({ logs, user, friends: initialFriends, friendActivity: initialFriendActivity, games, teams, venues }: Props) {
+  const [friends, setFriends] = useState<User[]>(initialFriends);
+  const [friendActivity] = useState<EventLog[]>(initialFriendActivity);
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  const [friendUsername, setFriendUsername] = useState("");
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addSuccess, setAddSuccess] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
   const myLogs = useMemo(() => logs.filter((l) => l.userId === user.id), [logs, user.id]);
 
   const stats = useMemo(() => {
@@ -34,10 +43,32 @@ export default function DashboardClient({ logs, user, activity, users, games, te
   }, [myLogs, games, teams]);
 
   const recentLogs = useMemo(() => myLogs.slice(0, 5), [myLogs]);
-  const friendActivity = useMemo(
-    () => activity.filter((l) => l.userId !== "demo1").slice(0, 5),
-    [activity]
-  );
+
+  const handleAddFriend = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddError(null);
+    setAddSuccess(null);
+    startTransition(async () => {
+      const result = await addFriendAction(user.id, friendUsername);
+      if (result.error) {
+        setAddError(result.error);
+      } else {
+        setAddSuccess(`@${friendUsername.replace(/^@/, '')} added!`);
+        setFriendUsername("");
+        setShowAddFriend(false);
+        // Reload to get updated friend list
+        window.location.reload();
+      }
+    });
+  }, [user.id, friendUsername]);
+
+  const handleRemoveFriend = useCallback(async (friendId: string, displayName: string) => {
+    if (!confirm(`Remove ${displayName}?`)) return;
+    startTransition(async () => {
+      await removeFriendAction(user.id, friendId);
+      setFriends((prev) => prev.filter((f) => f.id !== friendId));
+    });
+  }, [user.id]);
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -89,7 +120,9 @@ export default function DashboardClient({ logs, user, activity, users, games, te
               </Link>
             </div>
             <div className="space-y-2.5">
-              {recentLogs.map((log) => {
+              {recentLogs.length === 0 ? (
+                <p className="text-sm text-zinc-600 py-6 text-center">No games logged yet. <Link href="/log" className="text-emerald-400 hover:text-emerald-300">Log your first →</Link></p>
+              ) : recentLogs.map((log) => {
                 const game = games.find((g) => g.id === log.gameId);
                 const home = teams.find((t) => t.id === game?.homeTeamId);
                 const away = teams.find((t) => t.id === game?.awayTeamId);
@@ -125,13 +158,78 @@ export default function DashboardClient({ logs, user, activity, users, games, te
               </div>
             </div>
 
-            {/* Friend activity */}
-            {friendActivity.length > 0 && (
-              <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-600 mb-3">Friends</p>
-                <ActivityFeed logs={friendActivity} users={users} games={games} teams={teams} />
+            {/* Friends */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs uppercase tracking-widest text-zinc-600">Friends</p>
+                <button
+                  onClick={() => { setShowAddFriend((v) => !v); setAddError(null); setAddSuccess(null); }}
+                  className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-semibold"
+                >
+                  {showAddFriend ? "Cancel" : "+ Add"}
+                </button>
               </div>
-            )}
+
+              {/* Add friend form */}
+              {showAddFriend && (
+                <form onSubmit={handleAddFriend} className="mb-3 space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      value={friendUsername}
+                      onChange={(e) => setFriendUsername(e.target.value)}
+                      placeholder="@username"
+                      autoFocus
+                      className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isPending || !friendUsername.trim()}
+                      className="text-xs bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors"
+                    >
+                      {isPending ? "…" : "Add"}
+                    </button>
+                  </div>
+                  {addError && <p className="text-xs text-red-400">{addError}</p>}
+                  {addSuccess && <p className="text-xs text-emerald-400">{addSuccess}</p>}
+                </form>
+              )}
+
+              {/* Friend list */}
+              {friends.length === 0 ? (
+                <p className="text-xs text-zinc-600 leading-relaxed">
+                  No friends yet. Add someone by their username to see their game logs here.
+                </p>
+              ) : (
+                <div className="space-y-1 mb-4">
+                  {friends.map((friend) => (
+                    <div key={friend.id} className="flex items-center gap-2.5 py-1.5 group">
+                      <div className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0">
+                        {friend.displayName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-zinc-200 truncate">{friend.displayName}</p>
+                        <p className="text-xs text-zinc-600">@{friend.username}</p>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveFriend(friend.id, friend.displayName)}
+                        className="text-zinc-700 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-sm leading-none"
+                        title="Remove friend"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Friend activity feed */}
+              {friendActivity.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Recent activity</p>
+                  <ActivityFeed logs={friendActivity} users={friends} games={games} teams={teams} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
