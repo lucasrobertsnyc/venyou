@@ -43,6 +43,14 @@ const DEFAULT_RATING: ExperienceRating = {
 
 const today = new Date().toISOString().split("T")[0];
 
+const SPORT_PLACEHOLDERS: Record<string, { away: string; home: string }> = {
+  NFL: { away: "e.g. Chiefs", home: "e.g. Bills" },
+  MLB: { away: "e.g. Yankees", home: "e.g. Red Sox" },
+  NBA: { away: "e.g. Lakers", home: "e.g. Celtics" },
+  NHL: { away: "e.g. Maple Leafs", home: "e.g. Bruins" },
+  MLS: { away: "e.g. LAFC", home: "e.g. Sounders" },
+};
+
 export default function LogForm({ userId, teams, venues, onSubmit }: Props) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [sport, setSport] = useState<Sport | null>(null);
@@ -220,7 +228,7 @@ export default function LogForm({ userId, teams, venues, onSubmit }: Props) {
               onBlur={() => {
                 awayBlurTimer.current = setTimeout(() => setAwayOpen(false), 150);
               }}
-              placeholder="e.g. Chiefs"
+              placeholder={sport ? SPORT_PLACEHOLDERS[sport]?.away : "Away team"}
               autoFocus
               autoComplete="off"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500"
@@ -262,7 +270,7 @@ export default function LogForm({ userId, teams, venues, onSubmit }: Props) {
               onBlur={() => {
                 homeBlurTimer.current = setTimeout(() => setHomeOpen(false), 150);
               }}
-              placeholder="e.g. Bills"
+              placeholder={sport ? SPORT_PLACEHOLDERS[sport]?.home : "Home team"}
               autoComplete="off"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500"
             />
