@@ -8,6 +8,7 @@ import { formatScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import SportFilter from "@/components/SportFilter";
 import TeamBadge from "@/components/TeamBadge";
+import { deleteLogAction } from "@/app/dashboard/actions";
 
 interface Props {
   logs: EventLog[];
@@ -16,11 +17,19 @@ interface Props {
   games: Game[];
   teams: Team[];
   venues: Venue[];
+  isOwner: boolean;
 }
 
-export default function ProfileClient({ logs, user, wishlist, games, teams, venues }: Props) {
+export default function ProfileClient({ logs: initialLogs, user, wishlist, games, teams, venues, isOwner }: Props) {
+  const [logs, setLogs] = useState<EventLog[]>(initialLogs);
   const [sportFilter, setSportFilter] = useState<Sport | "all">("all");
   const [, startTransition] = useTransition();
+
+  const handleDeleteLog = useCallback(async (logId: string) => {
+    if (!confirm('Delete this game log?')) return;
+    setLogs((prev) => prev.filter((l) => l.id !== logId));
+    await deleteLogAction(logId);
+  }, []);
 
   const handleSportChange = useCallback((s: Sport | "all") => {
     startTransition(() => setSportFilter(s));
@@ -134,7 +143,7 @@ export default function ProfileClient({ logs, user, wishlist, games, teams, venu
             const away = teams.find((t) => t.id === game?.awayTeamId);
             const venue = venues.find((v) => v.id === game?.venueId);
             return (
-              <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} />
+              <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} onDelete={isOwner ? handleDeleteLog : undefined} />
             );
           })}
           {filtered.length === 0 && (

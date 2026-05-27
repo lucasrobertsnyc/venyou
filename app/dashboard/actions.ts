@@ -41,3 +41,21 @@ export async function removeFriendAction(currentUserId: string, friendId: string
   revalidatePath('/dashboard')
   return { error: null }
 }
+
+export async function deleteLogAction(logId: string) {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return { error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('event_logs')
+    .delete()
+    .eq('id', logId)
+    .eq('user_id', session.user.id) // RLS double-check: only own logs
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/profile/[username]', 'page')
+  return { error: null }
+}

@@ -9,6 +9,7 @@ interface Props {
   awayTeam: Team | undefined;
   venue: Venue | undefined;
   compact?: boolean;
+  onDelete?: (logId: string) => void;
 }
 
 const SPORT_ACCENT: Record<string, string> = {
@@ -20,7 +21,7 @@ const SPORT_ACCENT: Record<string, string> = {
 };
 
 const EventLogCard = React.memo(function EventLogCard({
-  log, game, homeTeam, awayTeam, venue, compact = false,
+  log, game, homeTeam, awayTeam, venue, compact = false, onDelete,
 }: Props) {
   const sport = homeTeam?.sport ?? "NFL";
   const accentColor = SPORT_ACCENT[sport] ?? "#34d399";
@@ -33,7 +34,7 @@ const EventLogCard = React.memo(function EventLogCard({
     : "";
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition-colors flex">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition-colors flex group">
       {/* Sport color rail */}
       <div className="w-1 shrink-0" style={{ backgroundColor: accentColor }} />
 
@@ -70,8 +71,17 @@ const EventLogCard = React.memo(function EventLogCard({
             )}
           </div>
 
-          {/* Right: score */}
-          <div className="shrink-0 text-right">
+          {/* Right: score + delete */}
+          <div className="shrink-0 text-right relative">
+            {onDelete && (
+              <button
+                onClick={() => onDelete(log.id)}
+                className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-600 hover:text-red-400 hover:border-red-800 hover:bg-red-950/40 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs leading-none"
+                title="Delete log"
+              >
+                ×
+              </button>
+            )}
             <p className="text-3xl font-black leading-none tabular-nums" style={{ color: scoreNum >= 8 ? accentColor : scoreNum >= 6 ? "#a1a1aa" : "#71717a" }}>
               {score}
             </p>

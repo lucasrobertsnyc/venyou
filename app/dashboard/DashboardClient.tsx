@@ -7,7 +7,7 @@ import { formatScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import ActivityFeed from "@/components/ActivityFeed";
 import LogoutButton from "@/components/LogoutButton";
-import { addFriendAction, removeFriendAction } from "@/app/dashboard/actions";
+import { addFriendAction, removeFriendAction, deleteLogAction } from "@/app/dashboard/actions";
 
 interface Props {
   logs: EventLog[];
@@ -21,6 +21,7 @@ interface Props {
 
 export default function DashboardClient({ logs, user, friends: initialFriends, friendActivity: initialFriendActivity, games, teams, venues }: Props) {
   const [friends, setFriends] = useState<User[]>(initialFriends);
+  const [localLogs, setLocalLogs] = useState<EventLog[]>(logs);
   const [friendActivity] = useState<EventLog[]>(initialFriendActivity);
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [friendUsername, setFriendUsername] = useState("");
@@ -28,7 +29,13 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
   const [addSuccess, setAddSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const myLogs = useMemo(() => logs.filter((l) => l.userId === user.id), [logs, user.id]);
+  const handleDeleteLog = useCallback(async (logId: string) => {
+    if (!confirm('Delete this game log?')) return;
+    setLocalLogs((prev) => prev.filter((l) => l.id !== logId));
+    await deleteLogAction(logId);
+  }, []);
+
+  const myLogs = useMemo(() => localLogs.filter((l) => l.userId === user.id), [localLogs, user.id]);
 
   const stats = useMemo(() => {
     const sports = new Set(
@@ -128,7 +135,7 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
                 const away = teams.find((t) => t.id === game?.awayTeamId);
                 const venue = venues.find((v) => v.id === game?.venueId);
                 return (
-                  <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} />
+                  <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} onDelete={handleDeleteLog} />
                 );
               })}
             </div>

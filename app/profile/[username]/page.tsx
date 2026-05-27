@@ -1,5 +1,5 @@
 import ProfileClient from "@/app/profile/[username]/ProfileClient";
-import { getUserLogs, getUser, getWishlist, getGames, getTeams, getVenues } from "@/lib/api";
+import { getCurrentUser, getUserLogs, getUser, getWishlist, getGames, getTeams, getVenues } from "@/lib/api";
 
 interface Props {
   params: { username: string };
@@ -7,7 +7,7 @@ interface Props {
 
 export default async function ProfilePage({ params }: Props) {
   const username = params.username;
-  const user = await getUser(username);
+  const [user, currentUser] = await Promise.all([getUser(username), getCurrentUser()]);
 
   if (!user) {
     const [games, teams, venues] = await Promise.all([getGames(), getTeams(), getVenues()]);
@@ -19,6 +19,7 @@ export default async function ProfilePage({ params }: Props) {
         games={games}
         teams={teams}
         venues={venues}
+        isOwner={false}
       />
     );
   }
@@ -39,6 +40,7 @@ export default async function ProfilePage({ params }: Props) {
       games={games}
       teams={teams}
       venues={venues}
+      isOwner={currentUser?.id === user.id}
     />
   );
 }
