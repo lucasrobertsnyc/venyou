@@ -8,7 +8,8 @@ import { ratingToScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import SportFilter from "@/components/SportFilter";
 import TeamBadge from "@/components/TeamBadge";
-import { deleteLogAction } from "@/app/dashboard/actions";
+import { deleteLogAction, updateLogAction } from "@/app/dashboard/actions";
+import EditLogModal from "@/components/EditLogModal";
 
 interface Props {
   logs: EventLog[];
@@ -22,6 +23,7 @@ interface Props {
 
 export default function ProfileClient({ logs: initialLogs, user, wishlist, games, teams, venues, isOwner }: Props) {
   const [logs, setLogs] = useState<EventLog[]>(initialLogs);
+  const [editingLog, setEditingLog] = useState<EventLog | null>(null);
   const [sportFilter, setSportFilter] = useState<Sport | "all">("all");
   const [, startTransition] = useTransition();
 
@@ -29,6 +31,34 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
     if (!confirm('Delete this game log?')) return;
     setLogs((prev) => prev.filter((l) => l.id !== logId));
     await deleteLogAction(logId);
+  }, []);
+
+  const handleEditLog = useCallback((log: EventLog) => setEditingLog(log), []);
+
+  const handleSaveEdit = useCallback(async (logId: string, updates: Parameters<typeof updateLogAction>[1]) => {
+    const result = await updateLogAction(logId, updates);
+    if (!result.error) {
+      setLogs((prev) =>
+        prev.map((l) =>
+          l.id === logId
+            ? {
+                ...l,
+                rating: {
+                  overall: updates.overall, atmosphere: updates.atmosphere,
+                  crowdEnergy: updates.crowdEnergy, seatViewQuality: updates.seatViewQuality,
+                  foodDrinks: updates.foodDrinks, entrySecurity: updates.entrySecurity,
+                  bathroomsLines: updates.bathroomsLines, parkingTransit: updates.parkingTransit,
+                  valueForMoney: updates.valueForMoney,
+                } as EventLog["rating"],
+                gameRating: updates.gameRating as EventLog["gameRating"],
+                review: updates.review,
+                section: updates.section,
+              }
+            : l
+        )
+      );
+      setEditingLog(null);
+    }
   }, []);
 
   const handleSportChange = useCallback((s: Sport | "all") => {
@@ -143,7 +173,7 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
             const away = teams.find((t) => t.id === game?.awayTeamId);
             const venue = venues.find((v) => v.id === game?.venueId);
             return (
-              <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} onDelete={isOwner ? handleDeleteLog : undefined} />
+              <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} onDelete={isOwner ? handleDeleteLog : undefined} onEdit={isOwner ? handleEditLog : undefined} />
             );
           })}
           {filtered.length === 0 && (
@@ -178,6 +208,22 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
           </div>
         )}
       </div>
+
+      {editingLog && (() => {
+        const game = games.find((g) => g.id === editingLog.gameId);
+        const home = teams.find((t) => t.id === game?.homeTeamId);
+        const away = teams.find((t) => t.id === game?.awayTeamId);
+        return (
+          <EditLogModal
+            log={editingLog}
+            game={game}
+            homeTeam={home}
+            awayTeam={away}
+            onSave={handleSaveEdit}
+            onClose={() => setEditingLog(null)}
+          />
+        );
+      })()}
     </div>
   );
 }

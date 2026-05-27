@@ -13,6 +13,7 @@ interface Props {
   venue: Venue | undefined;
   compact?: boolean;
   onDelete?: (logId: string) => void;
+  onEdit?: (log: EventLog) => void;
 }
 
 const SPORT_ACCENT: Record<string, string> = {
@@ -24,7 +25,7 @@ const SPORT_ACCENT: Record<string, string> = {
 };
 
 const EventLogCard = React.memo(function EventLogCard({
-  log, game, homeTeam, awayTeam, venue, compact = false, onDelete,
+  log, game, homeTeam, awayTeam, venue, compact = false, onDelete, onEdit,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
 
@@ -79,16 +80,32 @@ const EventLogCard = React.memo(function EventLogCard({
             )}
           </div>
 
-          {/* Right: score + delete */}
-          <div className="shrink-0 text-right relative">
-            {onDelete && (
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete(log.id); }}
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-600 hover:text-red-400 hover:border-red-800 hover:bg-red-950/40 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs leading-none"
-                title="Delete log"
-              >
-                ×
-              </button>
+          {/* Right: score + actions */}
+          <div className="shrink-0 text-right">
+            {/* Hover-reveal action buttons */}
+            {(onEdit || onDelete) && (
+              <div className="flex gap-1 justify-end mb-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                {onEdit && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onEdit(log); }}
+                    className="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-500 hover:text-emerald-400 hover:border-emerald-700 hover:bg-emerald-950/40 transition-colors flex items-center justify-center"
+                    title="Edit log"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                    </svg>
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(log.id); }}
+                    className="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-500 hover:text-red-400 hover:border-red-800 hover:bg-red-950/40 transition-colors flex items-center justify-center text-sm leading-none"
+                    title="Delete log"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
             )}
             <p
               className="text-3xl font-black leading-none tabular-nums"

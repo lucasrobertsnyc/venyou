@@ -85,6 +85,43 @@ export async function removeFriendAction(currentUserId: string, friendId: string
   return { error: null }
 }
 
+export async function updateLogAction(logId: string, data: {
+  overall: number; atmosphere: number; crowdEnergy: number; seatViewQuality: number;
+  foodDrinks: number; entrySecurity: number; bathroomsLines: number;
+  parkingTransit: number; valueForMoney: number; gameRating: number;
+  review: string; section: string;
+}) {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return { error: 'Not authenticated' }
+
+  const nullIfZero = (v: number) => (v > 0 ? v : null)
+
+  const { error } = await supabase
+    .from('event_logs')
+    .update({
+      overall: nullIfZero(data.overall),
+      atmosphere: nullIfZero(data.atmosphere),
+      crowd_energy: nullIfZero(data.crowdEnergy),
+      seat_view_quality: nullIfZero(data.seatViewQuality),
+      food_drinks: nullIfZero(data.foodDrinks),
+      entry_security: nullIfZero(data.entrySecurity),
+      bathrooms_lines: nullIfZero(data.bathroomsLines),
+      parking_transit: nullIfZero(data.parkingTransit),
+      value_for_money: nullIfZero(data.valueForMoney),
+      game_rating: nullIfZero(data.gameRating),
+      review: data.review,
+      section: data.section,
+    })
+    .eq('id', logId)
+    .eq('user_id', session.user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/dashboard')
+  revalidatePath('/profile/[username]', 'page')
+  return { error: null }
+}
+
 export async function deleteLogAction(logId: string) {
   const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()

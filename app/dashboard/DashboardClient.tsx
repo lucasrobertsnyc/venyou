@@ -13,7 +13,9 @@ import {
   declineFriendAction,
   removeFriendAction,
   deleteLogAction,
+  updateLogAction,
 } from "@/app/dashboard/actions";
+import EditLogModal from "@/components/EditLogModal";
 
 interface Props {
   logs: EventLog[];
@@ -33,6 +35,7 @@ export default function DashboardClient({
   friendActivity: initialFriendActivity,
   games, teams, venues,
 }: Props) {
+  const [editingLog, setEditingLog] = useState<EventLog | null>(null);
   const [friends, setFriends] = useState<User[]>(initialFriends);
   const [pendingRequests, setPendingRequests] = useState<User[]>(initialPending);
   const [localLogs, setLocalLogs] = useState<EventLog[]>(logs);
@@ -42,6 +45,34 @@ export default function DashboardClient({
   const [addError, setAddError] = useState<string | null>(null);
   const [addSuccess, setAddSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const handleEditLog = useCallback((log: EventLog) => setEditingLog(log), []);
+
+  const handleSaveEdit = useCallback(async (logId: string, updates: Parameters<typeof updateLogAction>[1]) => {
+    const result = await updateLogAction(logId, updates);
+    if (!result.error) {
+      setLocalLogs((prev) =>
+        prev.map((l) =>
+          l.id === logId
+            ? {
+                ...l,
+                rating: {
+                  overall: updates.overall, atmosphere: updates.atmosphere,
+                  crowdEnergy: updates.crowdEnergy, seatViewQuality: updates.seatViewQuality,
+                  foodDrinks: updates.foodDrinks, entrySecurity: updates.entrySecurity,
+                  bathroomsLines: updates.bathroomsLines, parkingTransit: updates.parkingTransit,
+                  valueForMoney: updates.valueForMoney,
+                } as EventLog["rating"],
+                gameRating: updates.gameRating as EventLog["gameRating"],
+                review: updates.review,
+                section: updates.section,
+              }
+            : l
+        )
+      );
+      setEditingLog(null);
+    }
+  }, []);
 
   const handleDeleteLog = useCallback(async (logId: string) => {
     if (!confirm("Delete this game log?")) return;
@@ -171,7 +202,7 @@ export default function DashboardClient({
                 const away = teams.find((t) => t.id === game?.awayTeamId);
                 const venue = venues.find((v) => v.id === game?.venueId);
                 return (
-                  <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} onDelete={handleDeleteLog} />
+                  <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} onDelete={handleDeleteLog} onEdit={handleEditLog} />
                 );
               })}
             </div>
@@ -322,6 +353,22 @@ export default function DashboardClient({
           </div>
         </div>
       </div>
+
+      {editingLog && (() => {
+        const game = games.find((g) => g.id === editingLog.gameId);
+        const home = teams.find((t) => t.id === game?.homeTeamId);
+        const away = teams.find((t) => t.id === game?.awayTeamId);
+        return (
+          <EditLogModal
+            log={editingLog}
+            game={game}
+            homeTeam={home}
+            awayTeam={away}
+            onSave={handleSaveEdit}
+            onClose={() => setEditingLog(null)}
+          />
+        );
+      })()}
     </div>
   );
 }
