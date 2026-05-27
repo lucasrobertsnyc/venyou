@@ -37,7 +37,7 @@ const RATING_ROWS = [
   { label: "Value for money", score: 4, bar: 80 },
 ];
 
-export default function HomepageClient() {
+export default function HomepageClient({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -48,11 +48,19 @@ export default function HomepageClient() {
           <span className="text-emerald-400 font-black text-lg tracking-tight">Stubs</span>
           <div className="flex items-center gap-6">
             <a href="#features" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Features</a>
-            <Link href="/login" className="text-xs uppercase tracking-widest text-zinc-400 hover:text-zinc-100 hidden sm:block transition-colors">Sign in</Link>
-            <Link href="/signup" className="text-sm font-bold text-zinc-100 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg hidden sm:block transition-colors">Sign up</Link>
-            <Link href="/dashboard" className="text-sm font-bold text-emerald-400 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 px-4 py-2 rounded-lg transition-colors">
-              Try demo →
-            </Link>
+            {isLoggedIn ? (
+              <Link href="/dashboard" className="text-sm font-bold text-emerald-400 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 px-4 py-2 rounded-lg transition-colors">
+                My Dashboard →
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="text-xs uppercase tracking-widest text-zinc-400 hover:text-zinc-100 hidden sm:block transition-colors">Sign in</Link>
+                <Link href="/signup" className="text-sm font-bold text-zinc-100 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg hidden sm:block transition-colors">Sign up</Link>
+                <Link href="/dashboard" className="text-sm font-bold text-emerald-400 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 px-4 py-2 rounded-lg transition-colors">
+                  Try demo →
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -88,25 +96,38 @@ export default function HomepageClient() {
               Build rankings. Track your sports life.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/signup"
-                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
-              >
-                Create free account
-              </Link>
-              <Link
-                href="/dashboard"
-                className="border border-zinc-600 hover:border-zinc-400 text-zinc-200 hover:text-zinc-100 font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
-              >
-                Try the demo
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
+                >
+                  Go to Dashboard →
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/signup"
+                    className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
+                  >
+                    Create free account
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="border border-zinc-600 hover:border-zinc-400 text-zinc-200 hover:text-zinc-100 font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
+                  >
+                    Try the demo
+                  </Link>
+                </>
+              )}
             </div>
-            <p className="text-xs text-zinc-600 mt-3">
-              Already have an account?{" "}
-              <Link href="/login" className="underline underline-offset-2 hover:text-zinc-400 transition-colors">
-                Sign in →
-              </Link>
-            </p>
+            {!isLoggedIn && (
+              <p className="text-xs text-zinc-600 mt-3">
+                Already have an account?{" "}
+                <Link href="/login" className="underline underline-offset-2 hover:text-zinc-400 transition-colors">
+                  Sign in →
+                </Link>
+              </p>
+            )}
           </div>
 
           {/* Right: stat block */}
@@ -262,18 +283,29 @@ export default function HomepageClient() {
             It takes two minutes.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/signup"
-              className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-4 rounded-xl text-sm transition-colors"
-            >
-              Create free account →
-            </Link>
-            <Link
-              href="/login"
-              className="border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-zinc-100 font-semibold px-8 py-4 rounded-xl text-sm transition-colors"
-            >
-              Sign in
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-4 rounded-xl text-sm transition-colors"
+              >
+                Go to Dashboard →
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/signup"
+                  className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-4 rounded-xl text-sm transition-colors"
+                >
+                  Create free account →
+                </Link>
+                <Link
+                  href="/login"
+                  className="border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-zinc-100 font-semibold px-8 py-4 rounded-xl text-sm transition-colors"
+                >
+                  Sign in
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
