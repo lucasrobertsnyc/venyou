@@ -9,7 +9,7 @@ export async function logGameAction(data: {
   gameId: string
   attendedDate: string
   rating: ExperienceRating
-  gameRating: RatingValue
+  gameRating: RatingValue | 0
   review: string
   section: string
 }) {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import type { Venue, EventLog, Game, Team } from "@/types/venyou";
-import { formatScore, RATING_CATEGORIES, SPORT_BG_COLORS } from "@/lib/sports";
+import { ratingToScore, RATING_CATEGORIES, SPORT_BG_COLORS } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import TeamBadge from "@/components/TeamBadge";
 
@@ -24,15 +24,17 @@ export default function VenueClient({ venue, logs, games, teams }: Props) {
 
 
   const avgScore = useMemo(() => {
-    if (logs.length === 0) return null;
-    const scores = logs.map((l) => parseFloat(formatScore(l.rating)));
+    const scores = logs.map((l) => ratingToScore(l.rating)).filter((s) => s > 0);
+    if (scores.length === 0) return null;
     return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
   }, [logs]);
 
   const categoryAvgs = useMemo(() => {
     if (logs.length === 0) return [];
     return RATING_CATEGORIES.map(({ key, label }) => {
-      const avg = logs.reduce((sum, l) => sum + l.rating[key], 0) / logs.length;
+      const vals = logs.map((l) => l.rating[key]).filter((v) => v > 0) as number[];
+      if (vals.length === 0) return { label, avg: "—", pct: 0 };
+      const avg = vals.reduce((sum, v) => sum + v, 0) / vals.length;
       return { label, avg: avg.toFixed(1), pct: (avg / 5) * 100 };
     });
   }, [logs]);

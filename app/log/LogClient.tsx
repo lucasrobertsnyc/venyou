@@ -86,9 +86,9 @@ export default function LogClient({ teams, games, venues, userId }: Props) {
             </div>
             <div className="grid grid-cols-3 gap-3 text-center">
               {[
-                { label: "Overall", val: submitted.rating.overall },
-                { label: "Atmosphere", val: submitted.rating.atmosphere },
-                { label: "Game", val: `${submitted.gameRating}/5` },
+                { label: "Overall", val: submitted.rating.overall > 0 ? submitted.rating.overall : "—" },
+                { label: "Atmosphere", val: submitted.rating.atmosphere > 0 ? submitted.rating.atmosphere : "—" },
+                { label: "Game", val: submitted.gameRating > 0 ? `${submitted.gameRating}/5` : "—" },
               ].map((s) => (
                 <div key={s.label} className="bg-zinc-900 rounded-xl p-3">
                   <p className="text-lg font-bold text-zinc-100">{s.val}</p>

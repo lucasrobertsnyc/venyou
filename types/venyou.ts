@@ -2,15 +2,15 @@ export type Sport = "NFL" | "MLB" | "NBA" | "NHL" | "MLS";
 export type RatingValue = 1 | 2 | 3 | 4 | 5;
 
 export interface ExperienceRating {
-  overall: RatingValue;
-  atmosphere: RatingValue;
-  crowdEnergy: RatingValue;
-  seatViewQuality: RatingValue;
-  foodDrinks: RatingValue;
-  entrySecurity: RatingValue;
-  bathroomsLines: RatingValue;
-  parkingTransit: RatingValue;
-  valueForMoney: RatingValue;
+  overall: RatingValue | 0;
+  atmosphere: RatingValue | 0;
+  crowdEnergy: RatingValue | 0;
+  seatViewQuality: RatingValue | 0;
+  foodDrinks: RatingValue | 0;
+  entrySecurity: RatingValue | 0;
+  bathroomsLines: RatingValue | 0;
+  parkingTransit: RatingValue | 0;
+  valueForMoney: RatingValue | 0;
 }
 
 export interface User {
@@ -59,7 +59,7 @@ export interface EventLog {
   gameId: string;
   attendedDate: string;
   rating: ExperienceRating;
-  gameRating: RatingValue;
+  gameRating: RatingValue | 0;
   review: string;
   section: string;
   createdAt: string;

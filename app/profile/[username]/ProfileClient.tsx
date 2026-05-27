@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useTransition } from "react";
 import Link from "next/link";
 import type { EventLog, User, Game, Team, Venue, WantToAttend } from "@/types/venyou";
 import type { Sport } from "@/types/venyou";
-import { formatScore } from "@/lib/sports";
+import { ratingToScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import SportFilter from "@/components/SportFilter";
 import TeamBadge from "@/components/TeamBadge";
@@ -56,7 +56,7 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
   const stats = useMemo(() => {
     const sports = new Set(logWithMeta.map((l) => l.sport).filter(Boolean));
     const venueIds = new Set(logWithMeta.map((l) => l.venueId).filter(Boolean));
-    const scores = logWithMeta.map((l) => parseFloat(formatScore(l.rating)));
+    const scores = logWithMeta.map((l) => ratingToScore(l.rating)).filter((s) => s > 0);
     const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : "—";
     return { total: logWithMeta.length, sports: sports.size, venues: venueIds.size, avg: avgScore };
   }, [logWithMeta]);

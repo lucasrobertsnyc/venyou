@@ -55,7 +55,8 @@ export const RATING_CATEGORIES: { key: keyof ExperienceRating; label: string }[]
 ];
 
 export function ratingToScore(rating: ExperienceRating): number {
-  const vals = Object.values(rating) as RatingValue[];
+  const vals = (Object.values(rating) as number[]).filter((v) => v > 0);
+  if (vals.length === 0) return 0;
   const sum = vals.reduce((a, b) => a + b, 0);
   return Math.round((sum / vals.length) * 2 * 10) / 10;
 }
@@ -74,5 +75,6 @@ export function avgRating(ratings: ExperienceRating[]): ExperienceRating {
 }
 
 export function formatScore(rating: ExperienceRating): string {
-  return ratingToScore(rating).toFixed(1);
+  const score = ratingToScore(rating);
+  return score === 0 ? "—" : score.toFixed(1);
 }

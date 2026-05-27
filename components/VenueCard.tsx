@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import type { Venue, EventLog } from "@/types/venyou";
-import { formatScore, SPORT_BG_COLORS } from "@/lib/sports";
+import { ratingToScore, SPORT_BG_COLORS } from "@/lib/sports";
 
 interface Props {
   venue: Venue;
@@ -10,9 +10,10 @@ interface Props {
 
 const VenueCard = React.memo(function VenueCard({ venue, logs = [] }: Props) {
   const sportBg = SPORT_BG_COLORS[venue.sport];
+  const ratedLogs = logs.filter((l) => ratingToScore(l.rating) > 0);
   const avgScore =
-    logs.length > 0
-      ? (logs.reduce((sum, l) => sum + parseFloat(formatScore(l.rating)), 0) / logs.length).toFixed(1)
+    ratedLogs.length > 0
+      ? (ratedLogs.reduce((sum, l) => sum + ratingToScore(l.rating), 0) / ratedLogs.length).toFixed(1)
       : null;
 
   return (

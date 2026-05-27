@@ -78,9 +78,7 @@ export default function LogForm({ teams, games, venues, userId, onSubmit }: Prop
   }, [selectedGame, rating, gameRating, review, section, onSubmit, userId]);
 
   const canProceedStep2 = selectedGame !== null;
-  const canSubmit =
-    gameRating > 0 &&
-    Object.values(rating).every((v) => v > 0);
+  const canSubmit = selectedGame !== null;
 
   if (step === 1) {
     return (
@@ -192,7 +190,7 @@ export default function LogForm({ teams, games, venues, userId, onSubmit }: Prop
 
       <div>
         <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
-          Overall Experience
+          Overall Experience <span className="normal-case font-normal text-zinc-600">(optional)</span>
         </p>
         <RatingInput
           label={RATING_CATEGORIES[0].label}
@@ -203,7 +201,7 @@ export default function LogForm({ teams, games, venues, userId, onSubmit }: Prop
 
       <div>
         <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
-          The Experience
+          The Experience <span className="normal-case font-normal text-zinc-600">(optional)</span>
         </p>
         <div className="space-y-3">
           {experienceCategories.map(({ key, label }) => (
@@ -218,7 +216,7 @@ export default function LogForm({ teams, games, venues, userId, onSubmit }: Prop
       </div>
 
       <div>
-        <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">The Game</p>
+        <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">The Game <span className="normal-case font-normal text-zinc-600">(optional)</span></p>
         <RatingInput
           label="How good was the game itself?"
           value={gameRating}

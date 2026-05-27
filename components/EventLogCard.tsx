@@ -1,6 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import React from "react";
 import type { EventLog, Game, Team, Venue } from "@/types/venyou";
-import { formatScore } from "@/lib/sports";
+import { formatScore, RATING_CATEGORIES } from "@/lib/sports";
 
 interface Props {
   log: EventLog;
@@ -23,6 +26,8 @@ const SPORT_ACCENT: Record<string, string> = {
 const EventLogCard = React.memo(function EventLogCard({
   log, game, homeTeam, awayTeam, venue, compact = false, onDelete,
 }: Props) {
+  const [expanded, setExpanded] = useState(false);
+
   const sport = homeTeam?.sport ?? "NFL";
   const accentColor = SPORT_ACCENT[sport] ?? "#34d399";
   const score = formatScore(log.rating);
@@ -32,6 +37,9 @@ const EventLogCard = React.memo(function EventLogCard({
         month: "short", day: "numeric", year: "numeric",
       })
     : "";
+
+  const hasAnyRating =
+    Object.values(log.rating).some((v) => v > 0) || log.gameRating > 0;
 
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition-colors flex group">
@@ -75,18 +83,23 @@ const EventLogCard = React.memo(function EventLogCard({
           <div className="shrink-0 text-right relative">
             {onDelete && (
               <button
-                onClick={() => onDelete(log.id)}
+                onClick={(e) => { e.stopPropagation(); onDelete(log.id); }}
                 className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-600 hover:text-red-400 hover:border-red-800 hover:bg-red-950/40 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs leading-none"
                 title="Delete log"
               >
                 ×
               </button>
             )}
-            <p className="text-3xl font-black leading-none tabular-nums" style={{ color: scoreNum >= 8 ? accentColor : scoreNum >= 6 ? "#a1a1aa" : "#71717a" }}>
+            <p
+              className="text-3xl font-black leading-none tabular-nums"
+              style={{ color: !isNaN(scoreNum) && scoreNum >= 8 ? accentColor : !isNaN(scoreNum) && scoreNum >= 6 ? "#a1a1aa" : "#71717a" }}
+            >
               {score}
             </p>
-            <p className="text-xs text-zinc-600 mt-0.5">/10 overall</p>
-            <p className="text-xs text-zinc-600 mt-1">Game {log.gameRating}/5</p>
+            {score !== "—" && <p className="text-xs text-zinc-600 mt-0.5">/10 overall</p>}
+            {log.gameRating > 0 && (
+              <p className="text-xs text-zinc-600 mt-1">Game {log.gameRating}/5</p>
+            )}
           </div>
 
         </div>
@@ -95,6 +108,64 @@ const EventLogCard = React.memo(function EventLogCard({
           <p className="text-xs text-zinc-600 mt-3 pt-3 border-t border-zinc-800">
             {log.section}
           </p>
+        )}
+
+        {/* Expand toggle */}
+        {!compact && hasAnyRating && (
+          <button
+            onClick={() => setExpanded((e) => !e)}
+            className="mt-3 flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+            {expanded ? "Hide ratings" : "View ratings"}
+          </button>
+        )}
+
+        {/* Expanded rating breakdown */}
+        {expanded && (
+          <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2">
+            {RATING_CATEGORIES.map(({ key, label }) => {
+              const val = log.rating[key];
+              return (
+                <div key={key} className="flex items-center gap-2">
+                  <span className="text-xs text-zinc-500 w-28 shrink-0 truncate">{label}</span>
+                  <div className="flex gap-0.5 flex-1">
+                    {([1, 2, 3, 4, 5] as const).map((s) => (
+                      <div
+                        key={s}
+                        className={`flex-1 h-1 rounded-full ${s <= val ? "bg-emerald-400" : "bg-zinc-700"}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold text-zinc-400 w-4 text-right tabular-nums shrink-0">
+                    {val > 0 ? val : "—"}
+                  </span>
+                </div>
+              );
+            })}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-500 w-28 shrink-0">Game quality</span>
+              <div className="flex gap-0.5 flex-1">
+                {([1, 2, 3, 4, 5] as const).map((s) => (
+                  <div
+                    key={s}
+                    className={`flex-1 h-1 rounded-full ${s <= log.gameRating ? "bg-emerald-400" : "bg-zinc-700"}`}
+                  />
+                ))}
+              </div>
+              <span className="text-xs font-bold text-zinc-400 w-4 text-right tabular-nums shrink-0">
+                {log.gameRating > 0 ? log.gameRating : "—"}
+              </span>
+            </div>
+          </div>
         )}
       </div>
     </div>

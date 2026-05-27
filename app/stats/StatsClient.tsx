@@ -8,7 +8,7 @@ import {
 } from "recharts";
 import type { EventLog, Venue, Game, Team } from "@/types/venyou";
 import type { Sport } from "@/types/venyou";
-import { SPORTS, AVG_TICKET_PRICE, RATING_CATEGORIES, formatScore } from "@/lib/sports";
+import { SPORTS, AVG_TICKET_PRICE, RATING_CATEGORIES, formatScore, ratingToScore } from "@/lib/sports";
 import StatCard from "@/components/StatCard";
 import SportFilter from "@/components/SportFilter";
 import LogoutButton from "@/components/LogoutButton";
@@ -124,7 +124,7 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
       if (!vid) continue;
       if (!map[vid]) map[vid] = { count: 0, scores: [] };
       map[vid].count++;
-      map[vid].scores.push(parseFloat(formatScore(l.rating)));
+      const s = ratingToScore(l.rating); if (s > 0) map[vid].scores.push(s);
     }
     return Object.entries(map)
       .map(([vid, { count, scores }]) => {
@@ -141,7 +141,7 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
     for (const l of logWithMeta) {
       if (!l.venueId) continue;
       if (!byVenue[l.venueId]) byVenue[l.venueId] = [];
-      byVenue[l.venueId].push(parseFloat(formatScore(l.rating)));
+      byVenue[l.venueId].push(ratingToScore(l.rating));
     }
     const favVenueId = Object.entries(byVenue).sort((a, b) => b[1].length - a[1].length)[0]?.[0];
     const favVenue = venues.find((v) => v.id === favVenueId);
@@ -155,7 +155,7 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
     const favTeam = teams.find((t) => t.id === favTeamId);
 
     const highestLog = [...logWithMeta].sort(
-      (a, b) => parseFloat(formatScore(b.rating)) - parseFloat(formatScore(a.rating))
+      (a, b) => ratingToScore(b.rating) - ratingToScore(a.rating)
     )[0];
     const highestGame = games.find((g) => g.id === highestLog?.gameId);
     const highHome = teams.find((t) => t.id === highestGame?.homeTeamId);

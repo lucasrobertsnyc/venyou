@@ -3,7 +3,7 @@
 import { useMemo, useState, useCallback, useTransition } from "react";
 import Link from "next/link";
 import type { EventLog, User, Game, Team, Venue } from "@/types/venyou";
-import { formatScore } from "@/lib/sports";
+import { ratingToScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import ActivityFeed from "@/components/ActivityFeed";
 import LogoutButton from "@/components/LogoutButton";
@@ -44,7 +44,7 @@ export default function DashboardClient({ logs, user, friends: initialFriends, f
     const venueIds = new Set(
       myLogs.map((l) => games.find((g) => g.id === l.gameId)?.venueId).filter(Boolean)
     );
-    const scores = myLogs.map((l) => parseFloat(formatScore(l.rating)));
+    const scores = myLogs.map((l) => ratingToScore(l.rating)).filter((s) => s > 0);
     const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : "—";
     return { total: myLogs.length, sports: sports.size, venues: venueIds.size, avg: avgScore };
   }, [myLogs, games, teams]);
