@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { resolveEmailAction } from "@/app/login/actions";
 
 function EyeIcon({ open }: { open: boolean }) {
   if (open) {
@@ -21,7 +22,7 @@ function EyeIcon({ open }: { open: boolean }) {
 }
 
 export default function LoginClient() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [staySignedIn, setStaySignedIn] = useState(true);
@@ -33,8 +34,17 @@ export default function LoginClient() {
       e.preventDefault();
       setError(null);
       setLoading(true);
+
+      // Resolve username → email if needed
+      const { email: resolvedEmail, error: resolveError } = await resolveEmailAction(identifier);
+      if (resolveError || !resolvedEmail) {
+        setError(resolveError ?? "Could not find account.");
+        setLoading(false);
+        return;
+      }
+
       const supabase = createClient();
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email: resolvedEmail, password });
       if (signInError) {
         setError(signInError.message);
         setLoading(false);
@@ -54,7 +64,7 @@ export default function LoginClient() {
       }
       window.location.href = "/dashboard";
     },
-    [email, password, staySignedIn]
+    [identifier, password, staySignedIn]
   );
 
   return (
@@ -77,11 +87,12 @@ export default function LoginClient() {
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Email or username"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
+              autoComplete="username"
               className="w-full bg-zinc-900 border border-zinc-700/60 rounded-lg px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
             />
             <div className="relative">
