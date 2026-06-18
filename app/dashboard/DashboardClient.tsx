@@ -342,16 +342,18 @@ export default function DashboardClient({
                 <div className="space-y-1 mb-4">
                   {friends.map((friend) => (
                     <div key={friend.id} className="flex items-center gap-2.5 py-1.5 group">
-                      <div className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0">
-                        {friend.displayName.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-zinc-200 truncate">{friend.displayName}</p>
-                        <p className="text-xs text-zinc-600">@{friend.username}</p>
-                      </div>
+                      <Link href={`/profile/${friend.username}`} className="flex items-center gap-2.5 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                        <div className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0">
+                          {friend.displayName.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-zinc-200 truncate">{friend.displayName}</p>
+                          <p className="text-xs text-zinc-600">@{friend.username}</p>
+                        </div>
+                      </Link>
                       <button
                         onClick={() => handleRemoveFriend(friend.id, friend.displayName)}
-                        className="text-zinc-700 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-sm leading-none"
+                        className="text-zinc-700 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-sm leading-none shrink-0"
                         title="Remove friend"
                       >
                         ×
@@ -364,7 +366,7 @@ export default function DashboardClient({
               {/* Friend activity feed */}
               {friendActivity.length > 0 && (
                 <div className="mt-2">
-                  <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Recent activity</p>
+                  <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Friends&apos; recent activity</p>
                   <ActivityFeed logs={friendActivity} users={friends} games={games} teams={teams} />
                 </div>
               )}

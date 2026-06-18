@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { EventLog, Game, Team, User } from "@/types/venyou";
 import { formatScore, SPORT_BG_COLORS } from "@/lib/sports";
 
@@ -28,14 +29,14 @@ export default function ActivityFeed({ logs, users, games, teams }: Props) {
             key={log.id}
             className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 flex items-center gap-3"
           >
-            <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-100 shrink-0">
+            <Link href={user ? `/profile/${user.username}` : "#"} className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-100 shrink-0 hover:opacity-80 transition-opacity">
               {user?.displayName.charAt(0) ?? "?"}
-            </div>
+            </Link>
             <div className="flex-1 min-w-0">
               <p className="text-xs text-zinc-100">
-                <span className="font-semibold">{user?.displayName}</span>{" "}
+                <Link href={user ? `/profile/${user.username}` : "#"} className="font-semibold hover:text-emerald-400 transition-colors">{user?.displayName}</Link>{" "}
                 <span className="text-zinc-400">logged</span>{" "}
-                <span className="font-medium">{away?.abbreviation} @ {home?.abbreviation}</span>
+                <span className="font-medium">{away?.abbreviation ?? game?.awayTeamName} @ {home?.abbreviation ?? game?.homeTeamName}</span>
               </p>
               <p className="text-xs text-zinc-500">{dateStr}</p>
             </div>
