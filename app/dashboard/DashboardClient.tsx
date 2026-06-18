@@ -239,6 +239,7 @@ export default function DashboardClient({
                   { href: "/stats", label: "Stats" },
                   { href: `/rankings/${user.username}`, label: "Rankings" },
                   { href: `/profile/${user.username}`, label: "Full profile" },
+                  { href: `/profile/${user.username}#wishlist`, label: "Wishlist" },
                   { href: "/log", label: "Log a game" },
                 ].map((item) => (
                   <Link

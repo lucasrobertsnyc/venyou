@@ -96,8 +96,8 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-wider">Want to Attend</h2>
+      <div id="wishlist" className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-wider">Wishlist</h2>
         {isOwner && !adding && (
           <button
             onClick={openAdd}
