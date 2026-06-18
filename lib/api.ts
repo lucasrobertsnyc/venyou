@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { EventLog, User, Venue, Game, Team, Ranking, WantToAttend } from '@/types/venyou'
 import type { Sport } from '@/types/venyou'
 
@@ -171,7 +172,7 @@ export async function getGames(teamId?: string): Promise<Game[]> {
 // ─── Event Logs ──────────────────────────────────────────────────────────────
 
 export async function getUserLogs(userId: string): Promise<EventLog[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data } = await supabase
     .from('event_logs')
     .select('*')
@@ -181,8 +182,7 @@ export async function getUserLogs(userId: string): Promise<EventLog[]> {
 }
 
 export async function getVenueLogs(venueId: string): Promise<EventLog[]> {
-  const supabase = await createClient()
-  // Two-step: get game IDs for this venue, then fetch logs for those games
+  const supabase = createAdminClient()
   const { data: games } = await supabase
     .from('games')
     .select('id')
@@ -199,7 +199,7 @@ export async function getVenueLogs(venueId: string): Promise<EventLog[]> {
 }
 
 export async function getRecentActivity(): Promise<EventLog[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data } = await supabase
     .from('event_logs')
     .select('*')
@@ -254,7 +254,7 @@ export async function insertEventLog(log: {
 // ─── Rankings ────────────────────────────────────────────────────────────────
 
 export async function getRankings(userId: string): Promise<Ranking[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data } = await supabase
     .from('rankings')
     .select('*, ranking_items(*)')
@@ -266,7 +266,7 @@ export async function getRankings(userId: string): Promise<Ranking[]> {
 // ─── Wishlist ─────────────────────────────────────────────────────────────────
 
 export async function getWishlist(userId: string): Promise<WantToAttend[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data } = await supabase
     .from('want_to_attend')
     .select('*')
@@ -299,6 +299,7 @@ export async function getFriends(userId: string): Promise<User[]> {
 
 export async function getFriendActivity(userId: string): Promise<EventLog[]> {
   const supabase = await createClient()
+  const admin = createAdminClient()
   const [{ data: outgoing }, { data: incoming }] = await Promise.all([
     supabase.from('friendships').select('friend_id').eq('user_id', userId).eq('status', 'accepted'),
     supabase.from('friendships').select('user_id').eq('friend_id', userId).eq('status', 'accepted'),
@@ -308,7 +309,7 @@ export async function getFriendActivity(userId: string): Promise<EventLog[]> {
     ...(incoming ?? []).map((f) => f.user_id),
   ]
   if (friendIds.length === 0) return []
-  const { data } = await supabase
+  const { data } = await admin
     .from('event_logs')
     .select('*')
     .in('user_id', friendIds)
