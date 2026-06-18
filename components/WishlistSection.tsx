@@ -4,6 +4,34 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import type { WantToAttend, Team, Venue } from "@/types/venyou";
 import { addWishlistItemAction, removeWishlistItemAction } from "@/app/profile/actions";
 
+const TEAM_HOME_VENUE: Record<string, string> = {
+  // NFL
+  "nfl-kc": "v-arrowhead", "nfl-lac": "v-sofi", "nfl-lar": "v-sofi",
+  "nfl-dal": "v-att", "nfl-nyg": "v-metlife", "nfl-nyj": "v-metlife",
+  "nfl-gb": "v-lambeau", "nfl-sf": "v-levis", "nfl-lv": "v-allegiant",
+  "nfl-phi": "v-linc", "nfl-chi": "v-soldier", "nfl-ne": "v-gillette",
+  "nfl-bal": "v-mt-bank", "nfl-pit": "v-acrisure",
+  // MLB
+  "mlb-bos": "v-fenway", "mlb-chc": "v-wrigley", "mlb-nyy": "v-yankee",
+  "mlb-lad": "v-dodger", "mlb-nym": "v-citi", "mlb-atl": "v-truist",
+  "mlb-sf": "v-oracle", "mlb-bal": "v-camden", "mlb-tex": "v-globe-life",
+  "mlb-stl": "v-busch", "mlb-pit": "v-pnc",
+  // NBA
+  "nba-nyk": "v-msg", "nba-bos": "v-td-garden", "nba-lal": "v-crypto",
+  "nba-chi": "v-united-center", "nba-gsw": "v-chase", "nba-mia": "v-kaseya",
+  "nba-den": "v-ball-arena", "nba-mil": "v-fiserv",
+  "nba-atl": "v-state-farm-arena", "nba-dal": "v-aac",
+  // NHL
+  "nhl-pit": "v-ppg-paints", "nhl-nyr": "v-msg", "nhl-bos": "v-td-garden",
+  "nhl-mtl": "v-bell-centre", "nhl-tor": "v-scotiabank",
+  "nhl-phi": "v-wells-fargo", "nhl-wsh": "v-capital-one",
+  "nhl-vgk": "v-t-mobile", "nhl-stl": "v-enterprise",
+  // MLS
+  "mls-atl": "v-mb-stadium", "mls-min": "v-allianz",
+  "mls-por": "v-providence", "mls-sea": "v-lumen",
+  "mls-nsh": "v-geodis", "mls-atx": "v-q2",
+};
+
 interface Props {
   initialWishlist: WantToAttend[];
   teams: Team[];
@@ -231,7 +259,16 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
                   <p className="text-sm font-medium text-zinc-100">
                     {team ? `${team.city} ${team.name}` : venue?.name ?? "Unknown"}
                   </p>
-                  {w.note && <p className="text-xs text-zinc-500 italic">{w.note}</p>}
+                  {team && (() => {
+                    const homeVenue = venues.find((v) => v.id === TEAM_HOME_VENUE[team.id]);
+                    return homeVenue ? (
+                      <p className="text-xs text-zinc-500">{homeVenue.name}</p>
+                    ) : null;
+                  })()}
+                  {!team && venue && (
+                    <p className="text-xs text-zinc-500">{venue.city}{venue.state ? `, ${venue.state}` : ""}</p>
+                  )}
+                  {w.note && <p className="text-xs text-zinc-500 italic mt-0.5">{w.note}</p>}
                 </div>
                 {team && <span className="text-xs font-bold text-zinc-500">{team.sport}</span>}
                 {isOwner && (
