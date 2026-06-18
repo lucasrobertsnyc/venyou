@@ -11,6 +11,7 @@ import TeamBadge from "@/components/TeamBadge";
 import { deleteLogAction, updateLogAction } from "@/app/dashboard/actions";
 import EditLogModal from "@/components/EditLogModal";
 import WishlistSection from "@/components/WishlistSection";
+import { TEAM_HOME_VENUE } from "@/lib/venues";
 
 interface Props {
   logs: EventLog[];
@@ -188,7 +189,9 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
             const game = games.find((g) => g.id === log.gameId);
             const home = teams.find((t) => t.id === game?.homeTeamId);
             const away = teams.find((t) => t.id === game?.awayTeamId);
-            const venue = venues.find((v) => v.id === game?.venueId);
+            const venue =
+              venues.find((v) => v.id === game?.venueId) ??
+              (home ? venues.find((v) => v.id === TEAM_HOME_VENUE[home.id]) : undefined);
             return (
               <div key={log.id} id={`log-${log.id}`} className="scroll-mt-24">
                 <EventLogCard log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={currentUserId} onDelete={isOwner ? handleDeleteLog : undefined} onEdit={isOwner ? handleEditLog : undefined} />

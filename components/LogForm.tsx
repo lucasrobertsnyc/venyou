@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import type { Sport, RatingValue, ExperienceRating, Team, Venue } from "@/types/venyou";
 import { SPORTS, RATING_CATEGORIES, SPORT_BG_COLORS } from "@/lib/sports";
+import { TEAM_HOME_VENUE } from "@/lib/venues";
 import RatingInput from "@/components/RatingInput";
 
 export interface LogSubmission {
@@ -127,10 +128,10 @@ export default function LogForm({ userId, teams, venues, onSubmit }: Props) {
       setHomeTeamName(team.abbreviation);
       setHomeTeamId(team.id);
       setHomeOpen(false);
-      // Auto-fill venue by matching city + sport
-      const venue = venues.find(
-        (v) => v.city === team.city && v.sport === team.sport
-      );
+      // Auto-fill venue: try city+sport match first, then home-venue map
+      const venue =
+        venues.find((v) => v.city === team.city && v.sport === team.sport) ??
+        venues.find((v) => v.id === TEAM_HOME_VENUE[team.id]);
       setVenueId(venue?.id ?? null);
       setVenueName(venue?.name ?? "");
     },

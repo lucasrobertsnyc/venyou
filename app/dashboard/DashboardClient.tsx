@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { EventLog, User, Game, Team, Venue, FriendComment } from "@/types/venyou";
 import { ratingToScore, SPORT_BG_COLORS } from "@/lib/sports";
+import { TEAM_HOME_VENUE } from "@/lib/venues";
 import EventLogCard from "@/components/EventLogCard";
 import LogoutButton from "@/components/LogoutButton";
 import {
@@ -220,7 +221,9 @@ export default function DashboardClient({
                 const game = games.find((g) => g.id === log.gameId);
                 const home = teams.find((t) => t.id === game?.homeTeamId);
                 const away = teams.find((t) => t.id === game?.awayTeamId);
-                const venue = venues.find((v) => v.id === game?.venueId);
+                const venue =
+                  venues.find((v) => v.id === game?.venueId) ??
+                  (home ? venues.find((v) => v.id === TEAM_HOME_VENUE[home.id]) : undefined);
                 return (
                   <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={user.id} onDelete={handleDeleteLog} onEdit={handleEditLog} />
                 );
