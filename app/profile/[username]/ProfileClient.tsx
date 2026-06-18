@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useTransition } from "react";
+import { useState, useMemo, useCallback, useTransition, useEffect } from "react";
 import Link from "next/link";
 import type { EventLog, User, Game, Team, Venue, WantToAttend } from "@/types/venyou";
 import type { Sport } from "@/types/venyou";
@@ -65,6 +65,21 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
 
   const handleSportChange = useCallback((s: Sport | "all") => {
     startTransition(() => setSportFilter(s));
+  }, []);
+
+  // Scroll to a specific log when navigated here via hash link (e.g. from the dashboard activity feed)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.startsWith("#log-")) return;
+    const logId = hash.slice("#log-".length);
+    if (!logs.find((l) => l.id === logId)) return;
+    // Reset sport filter so the target log is visible regardless of sport
+    setSportFilter("all");
+    const timer = setTimeout(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const logWithMeta = useMemo(
