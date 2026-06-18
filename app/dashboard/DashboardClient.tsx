@@ -392,26 +392,27 @@ export default function DashboardClient({
                       {items.map((item) => {
                         if (item.kind === "log") {
                           const { log } = item;
-                          const user = friends.find((u) => u.id === log.userId);
+                          const friend = friends.find((u) => u.id === log.userId);
                           const game = games.find((g) => g.id === log.gameId);
                           const home = teams.find((t) => t.id === game?.homeTeamId);
                           const away = teams.find((t) => t.id === game?.awayTeamId);
                           const sport = home?.sport ?? "NFL";
+                          const href = friend ? `/profile/${friend.username}#log-${log.id}` : "#";
                           return (
-                            <div key={`log-${log.id}`} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 flex items-center gap-3">
-                              <Link href={user ? `/profile/${user.username}` : "#"} className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0 hover:opacity-80 transition-opacity">
-                                {user?.displayName.charAt(0) ?? "?"}
-                              </Link>
+                            <Link key={`log-${log.id}`} href={href} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 flex items-center gap-3 hover:border-zinc-500 transition-colors block">
+                              <div className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0">
+                                {friend?.displayName.charAt(0) ?? "?"}
+                              </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs text-zinc-100">
-                                  <Link href={user ? `/profile/${user.username}` : "#"} className="font-semibold hover:text-emerald-400 transition-colors">{user?.displayName}</Link>
+                                  <span className="font-semibold">{friend?.displayName}</span>
                                   <span className="text-zinc-400"> logged </span>
                                   <span className="font-medium">{away?.abbreviation ?? "?"} @ {home?.abbreviation ?? "?"}</span>
                                 </p>
                                 <p className="text-xs text-zinc-500">{timeAgo(log.createdAt)}</p>
                               </div>
                               <span className={`text-xs font-bold px-1.5 py-0.5 rounded text-white shrink-0 ${SPORT_BG_COLORS[sport]}`}>{sport}</span>
-                            </div>
+                            </Link>
                           );
                         }
 
@@ -419,15 +420,16 @@ export default function DashboardClient({
                         const home = teams.find((t) => t.id === c.homeTeamId);
                         const away = teams.find((t) => t.id === c.awayTeamId);
                         const gameLabel = home && away ? `${away.abbreviation} @ ${home.abbreviation}` : "a game";
+                        const href = c.logOwnerUsername ? `/profile/${c.logOwnerUsername}#log-${c.logId}` : "#";
                         return (
-                          <div key={`comment-${c.id}`} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3">
+                          <Link key={`comment-${c.id}`} href={href} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 hover:border-zinc-500 transition-colors block">
                             <div className="flex items-center justify-between gap-2 mb-1.5">
                               <div className="flex items-center gap-2 min-w-0">
-                                <Link href={`/profile/${c.authorUsername}`} className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0 hover:opacity-80 transition-opacity">
+                                <div className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0">
                                   {c.authorName.charAt(0)}
-                                </Link>
+                                </div>
                                 <p className="text-xs text-zinc-100 truncate">
-                                  <Link href={`/profile/${c.authorUsername}`} className="font-semibold hover:text-emerald-400 transition-colors">{c.authorName}</Link>
+                                  <span className="font-semibold">{c.authorName}</span>
                                   <span className="text-zinc-400"> commented on </span>
                                   <span className="font-medium">{gameLabel}</span>
                                 </p>
@@ -435,7 +437,7 @@ export default function DashboardClient({
                               <span className="text-xs text-zinc-600 shrink-0">{timeAgo(c.createdAt)}</span>
                             </div>
                             <p className="text-xs text-zinc-400 pl-9 line-clamp-2 italic">&ldquo;{c.content}&rdquo;</p>
-                          </div>
+                          </Link>
                         );
                       })}
                     </div>

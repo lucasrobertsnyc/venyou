@@ -350,23 +350,33 @@ export async function getFriendComments(userId: string): Promise<FriendComment[]
   ])
 
   const gameIds = Array.from(new Set((logs ?? []).map((l) => l.game_id).filter(Boolean)))
-  const { data: games } = gameIds.length > 0
-    ? await admin.from('games').select('id, home_team_id, away_team_id').in('id', gameIds)
-    : { data: [] }
+  const logOwnerIds = Array.from(new Set((logs ?? []).map((l) => l.user_id).filter(Boolean)))
+
+  const [gamesResult, logOwnerProfiles] = await Promise.all([
+    gameIds.length > 0
+      ? admin.from('games').select('id, home_team_id, away_team_id').in('id', gameIds)
+      : Promise.resolve({ data: [] }),
+    logOwnerIds.length > 0
+      ? admin.from('profiles').select('id, username').in('id', logOwnerIds)
+      : Promise.resolve({ data: [] }),
+  ])
 
   const profileMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
   const logMap = Object.fromEntries((logs ?? []).map((l) => [l.id, l]))
-  const gameMap = Object.fromEntries((games ?? []).map((g) => [g.id, g]))
+  const gameMap = Object.fromEntries((gamesResult.data ?? []).map((g) => [g.id, g]))
+  const logOwnerMap = Object.fromEntries((logOwnerProfiles.data ?? []).map((p) => [p.id, p]))
 
   return comments.map((c) => {
     const log = logMap[c.log_id]
     const game = log ? gameMap[log.game_id] : null
     const profile = profileMap[c.user_id]
+    const logOwner = log ? logOwnerMap[log.user_id] : null
     return {
       id: c.id,
       userId: c.user_id,
       logId: c.log_id,
       logUserId: log?.user_id ?? '',
+      logOwnerUsername: logOwner?.username ?? '',
       content: c.content,
       createdAt: c.created_at,
       authorName: profile?.display_name ?? 'Unknown',

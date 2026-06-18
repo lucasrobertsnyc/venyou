@@ -107,6 +107,7 @@ export interface FriendComment {
   userId: string;
   logId: string;
   logUserId: string;
+  logOwnerUsername: string;
   content: string;
   createdAt: string;
   authorName: string;

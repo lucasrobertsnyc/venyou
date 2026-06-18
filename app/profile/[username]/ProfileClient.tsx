@@ -175,7 +175,9 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
             const away = teams.find((t) => t.id === game?.awayTeamId);
             const venue = venues.find((v) => v.id === game?.venueId);
             return (
-              <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={currentUserId} onDelete={isOwner ? handleDeleteLog : undefined} onEdit={isOwner ? handleEditLog : undefined} />
+              <div key={log.id} id={`log-${log.id}`} className="scroll-mt-24">
+                <EventLogCard log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={currentUserId} onDelete={isOwner ? handleDeleteLog : undefined} onEdit={isOwner ? handleEditLog : undefined} />
+              </div>
             );
           })}
           {filtered.length === 0 && (
