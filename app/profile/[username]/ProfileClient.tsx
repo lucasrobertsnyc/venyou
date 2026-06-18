@@ -70,23 +70,26 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, ranki
     startTransition(() => setSportFilter(s));
   }, []);
 
-  // Scroll to a specific log when navigated here via hash link (e.g. from the dashboard activity feed).
-  // Retries multiple times to handle Next.js client-side navigation timing (URL hash may not be set
-  // yet when the component first mounts, and the element may not be in the DOM immediately).
+  // Scroll to a specific log when navigated via a hash link from the activity feed.
+  // Uses scroll={false} on the originating <Link> so Next.js doesn't reset scroll position
+  // after navigation. We then own 100% of the scroll and retry until the element appears.
   useEffect(() => {
-    const tryScroll = (attemptsLeft: number) => {
+    let id: ReturnType<typeof setTimeout>;
+    const attempt = (remaining: number) => {
       const hash = window.location.hash;
-      if (!hash.startsWith("#log-")) return;
-      setSportFilter("all");
-      const el = document.getElementById(hash.slice(1));
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      } else if (attemptsLeft > 0) {
-        setTimeout(() => tryScroll(attemptsLeft - 1), 150);
+      if (hash.startsWith("#log-")) {
+        const el = document.getElementById(hash.slice(1));
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
       }
+      // Retry whether hash was missing or element wasn't in the DOM yet
+      if (remaining > 0) id = setTimeout(() => attempt(remaining - 1), 100);
     };
-    // Start immediately, then retry up to 6 times (~1 second total)
-    tryScroll(6);
+    // Start after 50ms, retry every 100ms for up to 2 seconds total
+    id = setTimeout(() => attempt(20), 50);
+    return () => clearTimeout(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

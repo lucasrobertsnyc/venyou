@@ -402,7 +402,7 @@ export default function DashboardClient({
                           const sport = home?.sport ?? "NFL";
                           const href = friend ? `/profile/${friend.username}#log-${log.id}` : "#";
                           return (
-                            <Link key={`log-${log.id}`} href={href} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 flex items-center gap-3 hover:border-zinc-500 transition-colors block">
+                            <Link key={`log-${log.id}`} href={href} scroll={false} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 flex items-center gap-3 hover:border-zinc-500 transition-colors block">
                               <div className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0">
                                 {friend?.displayName.charAt(0) ?? "?"}
                               </div>
@@ -426,7 +426,7 @@ export default function DashboardClient({
                         const gameLabel = home && away ? `${away.abbreviation} @ ${home.abbreviation}` : "a game";
                         const href = c.logOwnerUsername ? `/profile/${c.logOwnerUsername}#log-${c.logId}` : "#";
                         return (
-                          <Link key={`comment-${c.id}`} href={href} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 flex items-start gap-3 hover:border-zinc-500 transition-colors block">
+                          <Link key={`comment-${c.id}`} href={href} scroll={false} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 flex items-start gap-3 hover:border-zinc-500 transition-colors block">
                             <div className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0 mt-0.5">
                               {c.authorName.charAt(0)}
                             </div>
