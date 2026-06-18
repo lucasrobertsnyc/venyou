@@ -4,9 +4,8 @@ import { useMemo, useState, useCallback, useTransition, useEffect } from "react"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { EventLog, User, Game, Team, Venue, FriendComment } from "@/types/venyou";
-import { ratingToScore } from "@/lib/sports";
+import { ratingToScore, SPORT_BG_COLORS } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
-import ActivityFeed from "@/components/ActivityFeed";
 import LogoutButton from "@/components/LogoutButton";
 import {
   addFriendAction,
@@ -366,57 +365,83 @@ export default function DashboardClient({
                 </div>
               ) : null}
 
-              {/* Friend activity feed */}
-              {(friendActivity.length > 0 || friendComments.length > 0) && (
-                <div className="mt-2 space-y-4">
-                  {friendActivity.length > 0 && (
-                    <div>
-                      <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Friends&apos; recent activity</p>
-                      <ActivityFeed logs={friendActivity} users={friends} games={games} teams={teams} />
-                    </div>
-                  )}
-                  {friendComments.length > 0 && (
-                    <div>
-                      <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Friends&apos; recent comments</p>
-                      <div className="space-y-2">
-                        {friendComments.map((c) => {
-                          const home = teams.find((t) => t.id === c.homeTeamId);
-                          const away = teams.find((t) => t.id === c.awayTeamId);
-                          const gameLabel = home && away
-                            ? `${away.abbreviation} @ ${home.abbreviation}`
-                            : "a game";
-                          const timeAgo = (() => {
-                            const diff = Date.now() - new Date(c.createdAt).getTime();
-                            const m = Math.floor(diff / 60000);
-                            if (m < 60) return `${m}m ago`;
-                            const h = Math.floor(m / 60);
-                            if (h < 24) return `${h}h ago`;
-                            return `${Math.floor(h / 24)}d ago`;
-                          })();
+              {/* Unified friend activity feed */}
+              {(friendActivity.length > 0 || friendComments.length > 0) && (() => {
+                const timeAgo = (iso: string) => {
+                  const diff = Date.now() - new Date(iso).getTime();
+                  const m = Math.floor(diff / 60000);
+                  if (m < 60) return `${m}m ago`;
+                  const h = Math.floor(m / 60);
+                  if (h < 24) return `${h}h ago`;
+                  return `${Math.floor(h / 24)}d ago`;
+                };
+
+                type FeedItem =
+                  | { kind: "log"; createdAt: string; log: typeof friendActivity[0] }
+                  | { kind: "comment"; createdAt: string; comment: typeof friendComments[0] };
+
+                const items: FeedItem[] = [
+                  ...friendActivity.map((log) => ({ kind: "log" as const, createdAt: log.createdAt, log })),
+                  ...friendComments.map((comment) => ({ kind: "comment" as const, createdAt: comment.createdAt, comment })),
+                ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 15);
+
+                return (
+                  <div className="mt-2">
+                    <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Friends&apos; recent activity</p>
+                    <div className="space-y-2">
+                      {items.map((item) => {
+                        if (item.kind === "log") {
+                          const { log } = item;
+                          const user = friends.find((u) => u.id === log.userId);
+                          const game = games.find((g) => g.id === log.gameId);
+                          const home = teams.find((t) => t.id === game?.homeTeamId);
+                          const away = teams.find((t) => t.id === game?.awayTeamId);
+                          const sport = home?.sport ?? "NFL";
                           return (
-                            <div key={c.id} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3">
-                              <div className="flex items-center justify-between gap-2 mb-1.5">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <Link href={`/profile/${c.authorUsername}`} className="w-6 h-6 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0 hover:opacity-80 transition-opacity">
-                                    {c.authorName.charAt(0)}
-                                  </Link>
-                                  <p className="text-xs text-zinc-400 truncate">
-                                    <Link href={`/profile/${c.authorUsername}`} className="font-semibold text-zinc-100 hover:text-emerald-400 transition-colors">{c.authorName}</Link>
-                                    {" on "}
-                                    <span className="text-zinc-300">{gameLabel}</span>
-                                  </p>
-                                </div>
-                                <span className="text-xs text-zinc-600 shrink-0">{timeAgo}</span>
+                            <div key={`log-${log.id}`} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 flex items-center gap-3">
+                              <Link href={user ? `/profile/${user.username}` : "#"} className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0 hover:opacity-80 transition-opacity">
+                                {user?.displayName.charAt(0) ?? "?"}
+                              </Link>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-zinc-100">
+                                  <Link href={user ? `/profile/${user.username}` : "#"} className="font-semibold hover:text-emerald-400 transition-colors">{user?.displayName}</Link>
+                                  <span className="text-zinc-400"> logged </span>
+                                  <span className="font-medium">{away?.abbreviation ?? "?"} @ {home?.abbreviation ?? "?"}</span>
+                                </p>
+                                <p className="text-xs text-zinc-500">{timeAgo(log.createdAt)}</p>
                               </div>
-                              <p className="text-xs text-zinc-400 pl-8 line-clamp-2 italic">&ldquo;{c.content}&rdquo;</p>
+                              <span className={`text-xs font-bold px-1.5 py-0.5 rounded text-white shrink-0 ${SPORT_BG_COLORS[sport]}`}>{sport}</span>
                             </div>
                           );
-                        })}
-                      </div>
+                        }
+
+                        const { comment: c } = item;
+                        const home = teams.find((t) => t.id === c.homeTeamId);
+                        const away = teams.find((t) => t.id === c.awayTeamId);
+                        const gameLabel = home && away ? `${away.abbreviation} @ ${home.abbreviation}` : "a game";
+                        return (
+                          <div key={`comment-${c.id}`} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3">
+                            <div className="flex items-center justify-between gap-2 mb-1.5">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <Link href={`/profile/${c.authorUsername}`} className="w-7 h-7 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0 hover:opacity-80 transition-opacity">
+                                  {c.authorName.charAt(0)}
+                                </Link>
+                                <p className="text-xs text-zinc-100 truncate">
+                                  <Link href={`/profile/${c.authorUsername}`} className="font-semibold hover:text-emerald-400 transition-colors">{c.authorName}</Link>
+                                  <span className="text-zinc-400"> commented on </span>
+                                  <span className="font-medium">{gameLabel}</span>
+                                </p>
+                              </div>
+                              <span className="text-xs text-zinc-600 shrink-0">{timeAgo(c.createdAt)}</span>
+                            </div>
+                            <p className="text-xs text-zinc-400 pl-9 line-clamp-2 italic">&ldquo;{c.content}&rdquo;</p>
+                          </div>
+                        );
+                      })}
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
