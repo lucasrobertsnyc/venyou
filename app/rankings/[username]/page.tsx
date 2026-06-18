@@ -27,6 +27,7 @@ export default async function RankingsPage({ params }: Props) {
       teams={teams}
       venues={venues}
       games={games}
+      isOwner={currentUser.id === targetUser.id}
     />
   );
 }
