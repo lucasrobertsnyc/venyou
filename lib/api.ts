@@ -177,7 +177,8 @@ export async function getUserLogs(userId: string): Promise<EventLog[]> {
     .from('event_logs')
     .select('*')
     .eq('user_id', userId)
-    .order('attended_date', { ascending: false })
+    .order('attended_date', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
   return (data ?? []).map(mapEventLog)
 }
 

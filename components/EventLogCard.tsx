@@ -102,9 +102,9 @@ const EventLogCard = React.memo(function EventLogCard({
   }, []);
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition-colors flex group">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30 transition-all duration-200 flex group">
       {/* Sport color rail */}
-      <div className="w-1 shrink-0" style={{ backgroundColor: accentColor }} />
+      <div className="w-1.5 shrink-0" style={{ backgroundColor: accentColor }} />
 
       <div className="flex-1 p-4">
         <div className="flex items-start justify-between gap-3">
@@ -113,13 +113,12 @@ const EventLogCard = React.memo(function EventLogCard({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-1.5">
               <span
-                className="text-xs font-black tracking-wider"
-                style={{ color: accentColor }}
+                className="text-xs font-black tracking-wider px-1.5 py-0.5 rounded"
+                style={{ color: accentColor, backgroundColor: `${accentColor}18` }}
               >
                 {sport}
               </span>
-              <span className="text-zinc-700">·</span>
-              <span className="text-xs text-zinc-500">{dateStr}</span>
+              {dateStr && <span className="text-xs text-zinc-500">{dateStr}</span>}
             </div>
             <h3 className="text-sm font-bold text-zinc-100 truncate leading-snug">
               {awayTeam?.abbreviation ?? game?.awayTeamName ?? "?"}{" "}

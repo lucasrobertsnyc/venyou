@@ -95,11 +95,17 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, ranki
 
   const logWithMeta = useMemo(
     () =>
-      logs.map((l) => {
-        const game = games.find((g) => g.id === l.gameId);
-        const home = teams.find((t) => t.id === game?.homeTeamId);
-        return { ...l, sport: home?.sport ?? game?.sport, venueId: game?.venueId };
-      }),
+      [...logs]
+        .sort((a, b) => {
+          const da = new Date(a.attendedDate ?? a.createdAt).getTime();
+          const db = new Date(b.attendedDate ?? b.createdAt).getTime();
+          return db - da;
+        })
+        .map((l) => {
+          const game = games.find((g) => g.id === l.gameId);
+          const home = teams.find((t) => t.id === game?.homeTeamId);
+          return { ...l, sport: home?.sport ?? game?.sport, venueId: game?.venueId };
+        }),
     [logs, games, teams]
   );
 
@@ -110,6 +116,23 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, ranki
         : logWithMeta.filter((l) => l.sport === sportFilter),
     [logWithMeta, sportFilter]
   );
+
+  // Group filtered logs by month-year for the timeline display
+  const groupedLogs = useMemo(() => {
+    const groups: { label: string; items: typeof filtered }[] = [];
+    const seen = new Map<string, number>();
+    for (const log of filtered) {
+      const dateStr = log.attendedDate ?? log.createdAt;
+      const date = new Date(dateStr + (log.attendedDate ? "T12:00:00" : ""));
+      const label = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      if (!seen.has(label)) {
+        seen.set(label, groups.length);
+        groups.push({ label, items: [] });
+      }
+      groups[seen.get(label)!].items.push(log);
+    }
+    return groups;
+  }, [filtered]);
 
   const stats = useMemo(() => {
     const sports = new Set(logWithMeta.map((l) => l.sport).filter(Boolean));
@@ -193,24 +216,35 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, ranki
           <SportFilter selected={sportFilter} onChange={handleSportChange} />
         </div>
 
-        {/* Logs grid */}
-        <div className="grid sm:grid-cols-2 gap-4 mb-10">
-          {filtered.map((log) => {
-            const game = games.find((g) => g.id === log.gameId);
-            const home = teams.find((t) => t.id === game?.homeTeamId);
-            const away = teams.find((t) => t.id === game?.awayTeamId);
-            const venue =
-              venues.find((v) => v.id === game?.venueId) ??
-              (home ? venues.find((v) => v.id === TEAM_HOME_VENUE[home.id]) : undefined);
-            return (
-              <div key={log.id} id={`log-${log.id}`} className="scroll-mt-24">
-                <EventLogCard log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={currentUserId} onDelete={isOwner ? handleDeleteLog : undefined} onEdit={isOwner ? handleEditLog : undefined} />
-              </div>
-            );
-          })}
-          {filtered.length === 0 && (
-            <p className="text-zinc-500 text-sm col-span-2 text-center py-12">No games logged for this sport yet.</p>
+        {/* Logs — grouped by month */}
+        <div className="mb-10">
+          {groupedLogs.length === 0 && (
+            <p className="text-zinc-500 text-sm text-center py-12">No games logged for this sport yet.</p>
           )}
+          {groupedLogs.map((group) => (
+            <div key={group.label} className="mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-xs font-semibold uppercase tracking-widest text-zinc-500">{group.label}</span>
+                <div className="flex-1 h-px bg-zinc-800" />
+                <span className="text-xs text-zinc-600">{group.items.length}</span>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {group.items.map((log) => {
+                  const game = games.find((g) => g.id === log.gameId);
+                  const home = teams.find((t) => t.id === game?.homeTeamId);
+                  const away = teams.find((t) => t.id === game?.awayTeamId);
+                  const venue =
+                    venues.find((v) => v.id === game?.venueId) ??
+                    (home ? venues.find((v) => v.id === TEAM_HOME_VENUE[home.id]) : undefined);
+                  return (
+                    <div key={log.id} id={`log-${log.id}`} className="scroll-mt-24">
+                      <EventLogCard log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={currentUserId} onDelete={isOwner ? handleDeleteLog : undefined} onEdit={isOwner ? handleEditLog : undefined} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Rankings */}
