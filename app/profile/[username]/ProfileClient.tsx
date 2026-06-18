@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useTransition, useEffect } from "react";
 import Link from "next/link";
-import type { EventLog, User, Game, Team, Venue, WantToAttend } from "@/types/venyou";
+import type { EventLog, User, Game, Team, Venue, WantToAttend, Ranking } from "@/types/venyou";
 import type { Sport } from "@/types/venyou";
 import { ratingToScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
@@ -11,12 +11,14 @@ import TeamBadge from "@/components/TeamBadge";
 import { deleteLogAction, updateLogAction } from "@/app/dashboard/actions";
 import EditLogModal from "@/components/EditLogModal";
 import WishlistSection from "@/components/WishlistSection";
+import RankingCard from "@/components/RankingCard";
 import { TEAM_HOME_VENUE } from "@/lib/venues";
 
 interface Props {
   logs: EventLog[];
   user: User;
   wishlist: WantToAttend[];
+  rankings: Ranking[];
   games: Game[];
   teams: Team[];
   venues: Venue[];
@@ -24,7 +26,7 @@ interface Props {
   currentUserId?: string;
 }
 
-export default function ProfileClient({ logs: initialLogs, user, wishlist, games, teams, venues, isOwner, currentUserId }: Props) {
+export default function ProfileClient({ logs: initialLogs, user, wishlist, rankings, games, teams, venues, isOwner, currentUserId }: Props) {
   const [logs, setLogs] = useState<EventLog[]>(initialLogs);
   const [editingLog, setEditingLog] = useState<EventLog | null>(null);
   const [sportFilter, setSportFilter] = useState<Sport | "all">("all");
@@ -149,12 +151,12 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
                 {user.bio && <p className="text-sm text-zinc-400 mt-1 max-w-sm">{user.bio}</p>}
               </div>
             </div>
-            <Link
-              href={`/rankings/${user.username}`}
+            <a
+              href="#rankings"
               className="text-sm border border-zinc-700 hover:border-emerald-500 text-zinc-300 hover:text-emerald-400 px-4 py-2 rounded-xl transition-colors"
             >
-              View Rankings
-            </Link>
+              Rankings {rankings.length > 0 && `(${rankings.length})`}
+            </a>
           </div>
 
           {/* Stats bar */}
@@ -205,6 +207,41 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
           })}
           {filtered.length === 0 && (
             <p className="text-zinc-500 text-sm col-span-2 text-center py-12">No games logged for this sport yet.</p>
+          )}
+        </div>
+
+        {/* Rankings */}
+        <div className="mb-10" id="rankings">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-wider">Rankings</h2>
+            {isOwner && (
+              <Link
+                href={`/rankings/${user.username}`}
+                className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
+              >
+                Manage →
+              </Link>
+            )}
+          </div>
+          {rankings.length > 0 ? (
+            <div className="grid sm:grid-cols-2 gap-4">
+              {rankings.map((r) => (
+                <RankingCard key={r.id} ranking={r} teams={teams} venues={venues} games={games} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-zinc-500 text-sm text-center py-8">
+              {isOwner ? (
+                <>
+                  No rankings yet.{" "}
+                  <Link href={`/rankings/${user.username}`} className="text-emerald-400 hover:text-emerald-300">
+                    Create one →
+                  </Link>
+                </>
+              ) : (
+                "No rankings yet."
+              )}
+            </p>
           )}
         </div>
 

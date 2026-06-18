@@ -1,5 +1,5 @@
 import ProfileClient from "@/app/profile/[username]/ProfileClient";
-import { getCurrentUser, getUserLogs, getUser, getWishlist, getGames, getTeams, getVenues } from "@/lib/api";
+import { getCurrentUser, getUserLogs, getUser, getWishlist, getRankings, getGames, getTeams, getVenues } from "@/lib/api";
 
 interface Props {
   params: { username: string };
@@ -16,6 +16,7 @@ export default async function ProfilePage({ params }: Props) {
         logs={[]}
         user={{ id: "", username, displayName: username, bio: "", homeCity: "", favoriteTeams: {}, joinedAt: "" }}
         wishlist={[]}
+        rankings={[]}
         games={games}
         teams={teams}
         venues={venues}
@@ -25,9 +26,10 @@ export default async function ProfilePage({ params }: Props) {
     );
   }
 
-  const [logs, wishlist, games, teams, venues] = await Promise.all([
+  const [logs, wishlist, rankings, games, teams, venues] = await Promise.all([
     getUserLogs(user.id),
     getWishlist(user.id),
+    getRankings(user.id),
     getGames(),
     getTeams(),
     getVenues(),
@@ -38,6 +40,7 @@ export default async function ProfilePage({ params }: Props) {
       logs={logs}
       user={user}
       wishlist={wishlist}
+      rankings={rankings}
       games={games}
       teams={teams}
       venues={venues}
