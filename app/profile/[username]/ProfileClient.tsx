@@ -68,18 +68,23 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
     startTransition(() => setSportFilter(s));
   }, []);
 
-  // Scroll to a specific log when navigated here via hash link (e.g. from the dashboard activity feed)
+  // Scroll to a specific log when navigated here via hash link (e.g. from the dashboard activity feed).
+  // Retries multiple times to handle Next.js client-side navigation timing (URL hash may not be set
+  // yet when the component first mounts, and the element may not be in the DOM immediately).
   useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash.startsWith("#log-")) return;
-    const logId = hash.slice("#log-".length);
-    if (!logs.find((l) => l.id === logId)) return;
-    // Reset sport filter so the target log is visible regardless of sport
-    setSportFilter("all");
-    const timer = setTimeout(() => {
-      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 150);
-    return () => clearTimeout(timer);
+    const tryScroll = (attemptsLeft: number) => {
+      const hash = window.location.hash;
+      if (!hash.startsWith("#log-")) return;
+      setSportFilter("all");
+      const el = document.getElementById(hash.slice(1));
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (attemptsLeft > 0) {
+        setTimeout(() => tryScroll(attemptsLeft - 1), 150);
+      }
+    };
+    // Start immediately, then retry up to 6 times (~1 second total)
+    tryScroll(6);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
