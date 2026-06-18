@@ -54,12 +54,14 @@ export async function addFriendAction(currentUserId: string, username: string) {
 
 export async function acceptFriendAction(requesterId: string, currentUserId: string) {
   const supabase = await createClient()
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('friendships')
     .update({ status: 'accepted' })
     .eq('user_id', requesterId)
     .eq('friend_id', currentUserId)
+    .select()
   if (error) return { error: error.message }
+  if (!data || data.length === 0) return { error: 'Could not accept request — check Supabase RLS policies on friendships.' }
   revalidatePath('/dashboard')
   return { error: null }
 }

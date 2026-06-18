@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, useCallback, useTransition } from "react";
+import { useMemo, useState, useCallback, useTransition, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { EventLog, User, Game, Team, Venue } from "@/types/venyou";
 import { ratingToScore } from "@/lib/sports";
@@ -35,6 +36,7 @@ export default function DashboardClient({
   friendActivity: initialFriendActivity,
   games, teams, venues,
 }: Props) {
+  const router = useRouter();
   const [editingLog, setEditingLog] = useState<EventLog | null>(null);
   const [friends, setFriends] = useState<User[]>(initialFriends);
   const [pendingRequests, setPendingRequests] = useState<User[]>(initialPending);
@@ -45,6 +47,10 @@ export default function DashboardClient({
   const [addError, setAddError] = useState<string | null>(null);
   const [addSuccess, setAddSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Sync state when server re-fetches (after router.refresh())
+  useEffect(() => { setFriends(initialFriends); }, [initialFriends]);
+  useEffect(() => { setPendingRequests(initialPending); }, [initialPending]);
 
   const handleEditLog = useCallback((log: EventLog) => setEditingLog(log), []);
 
@@ -122,27 +128,37 @@ export default function DashboardClient({
   }, [user.id, friendUsername]);
 
   const handleAcceptRequest = useCallback(async (requester: User) => {
+    // Optimistic update
+    setPendingRequests((prev) => prev.filter((r) => r.id !== requester.id));
+    setFriends((prev) => [...prev, requester]);
     startTransition(async () => {
-      await acceptFriendAction(requester.id, user.id);
-      setPendingRequests((prev) => prev.filter((r) => r.id !== requester.id));
-      setFriends((prev) => [...prev, requester]);
+      const result = await acceptFriendAction(requester.id, user.id);
+      if (result.error) {
+        // Revert on failure and show error
+        setPendingRequests((prev) => [...prev, requester]);
+        setFriends((prev) => prev.filter((f) => f.id !== requester.id));
+        setAddError(result.error);
+      }
+      router.refresh();
     });
-  }, [user.id]);
+  }, [user.id, router]);
 
   const handleDeclineRequest = useCallback(async (requesterId: string) => {
+    setPendingRequests((prev) => prev.filter((r) => r.id !== requesterId));
     startTransition(async () => {
       await declineFriendAction(requesterId, user.id);
-      setPendingRequests((prev) => prev.filter((r) => r.id !== requesterId));
+      router.refresh();
     });
-  }, [user.id]);
+  }, [user.id, router]);
 
   const handleRemoveFriend = useCallback(async (friendId: string, displayName: string) => {
     if (!confirm(`Remove ${displayName}?`)) return;
+    setFriends((prev) => prev.filter((f) => f.id !== friendId));
     startTransition(async () => {
       await removeFriendAction(user.id, friendId);
-      setFriends((prev) => prev.filter((f) => f.id !== friendId));
+      router.refresh();
     });
-  }, [user.id]);
+  }, [user.id, router]);
 
   return (
     <div className="min-h-screen bg-zinc-950">
