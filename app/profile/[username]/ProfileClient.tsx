@@ -10,6 +10,7 @@ import SportFilter from "@/components/SportFilter";
 import TeamBadge from "@/components/TeamBadge";
 import { deleteLogAction, updateLogAction } from "@/app/dashboard/actions";
 import EditLogModal from "@/components/EditLogModal";
+import WishlistSection from "@/components/WishlistSection";
 
 interface Props {
   logs: EventLog[];
@@ -183,31 +184,12 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, games
         </div>
 
         {/* Wishlist */}
-        {wishlist.length > 0 && (
-          <div>
-            <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-wider mb-4">Want to Attend</h2>
-            <div className="space-y-2">
-              {wishlist.map((w) => {
-                const team = w.teamId ? teams.find((t) => t.id === w.teamId) : null;
-                const venue = w.venueId ? venues.find((v) => v.id === w.venueId) : null;
-                return (
-                  <div key={w.id} className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-zinc-100">
-                        {team ? `${team.city} ${team.name}` : venue?.name ?? "Unknown"}
-                      </p>
-                      {w.note && <p className="text-xs text-zinc-500 italic">{w.note}</p>}
-                    </div>
-                    {team && (
-                      <span className="text-xs font-bold text-zinc-500">{team.sport}</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        <WishlistSection
+          initialWishlist={wishlist}
+          teams={teams}
+          venues={venues}
+          isOwner={isOwner}
+        />
       </div>
 
       {editingLog && (() => {
