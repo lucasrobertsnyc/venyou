@@ -101,3 +101,17 @@ export interface WantToAttend {
   venueId?: string;
   note: string;
 }
+
+export interface FriendComment {
+  id: string;
+  userId: string;
+  logId: string;
+  logUserId: string;
+  content: string;
+  createdAt: string;
+  authorName: string;
+  authorUsername: string;
+  gameId: string;
+  homeTeamId?: string;
+  awayTeamId?: string;
+}

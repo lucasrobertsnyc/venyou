@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { EventLog, User, Venue, Game, Team, Ranking, WantToAttend } from '@/types/venyou'
+import type { EventLog, User, Venue, Game, Team, Ranking, WantToAttend, FriendComment } from '@/types/venyou'
 import type { Sport } from '@/types/venyou'
 
 // ─── Mappers (snake_case DB → camelCase TS) ──────────────────────────────────
@@ -316,6 +316,66 @@ export async function getFriendActivity(userId: string): Promise<EventLog[]> {
     .order('created_at', { ascending: false })
     .limit(10)
   return (data ?? []).map(mapEventLog)
+}
+
+export async function getFriendComments(userId: string): Promise<FriendComment[]> {
+  const supabase = await createClient()
+  const admin = createAdminClient()
+
+  const [{ data: outgoing }, { data: incoming }] = await Promise.all([
+    supabase.from('friendships').select('friend_id').eq('user_id', userId).eq('status', 'accepted'),
+    supabase.from('friendships').select('user_id').eq('friend_id', userId).eq('status', 'accepted'),
+  ])
+  const friendIds = [
+    ...(outgoing ?? []).map((f) => f.friend_id),
+    ...(incoming ?? []).map((f) => f.user_id),
+  ]
+  if (friendIds.length === 0) return []
+
+  const { data: comments } = await admin
+    .from('comments')
+    .select('*')
+    .in('user_id', friendIds)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  if (!comments || comments.length === 0) return []
+
+  const authorIds = Array.from(new Set(comments.map((c) => c.user_id)))
+  const logIds = Array.from(new Set(comments.map((c) => c.log_id)))
+
+  const [{ data: profiles }, { data: logs }] = await Promise.all([
+    admin.from('profiles').select('id, display_name, username').in('id', authorIds),
+    admin.from('event_logs').select('id, user_id, game_id').in('id', logIds),
+  ])
+
+  const gameIds = Array.from(new Set((logs ?? []).map((l) => l.game_id).filter(Boolean)))
+  const { data: games } = gameIds.length > 0
+    ? await admin.from('games').select('id, home_team_id, away_team_id').in('id', gameIds)
+    : { data: [] }
+
+  const profileMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
+  const logMap = Object.fromEntries((logs ?? []).map((l) => [l.id, l]))
+  const gameMap = Object.fromEntries((games ?? []).map((g) => [g.id, g]))
+
+  return comments.map((c) => {
+    const log = logMap[c.log_id]
+    const game = log ? gameMap[log.game_id] : null
+    const profile = profileMap[c.user_id]
+    return {
+      id: c.id,
+      userId: c.user_id,
+      logId: c.log_id,
+      logUserId: log?.user_id ?? '',
+      content: c.content,
+      createdAt: c.created_at,
+      authorName: profile?.display_name ?? 'Unknown',
+      authorUsername: profile?.username ?? '',
+      gameId: log?.game_id ?? '',
+      homeTeamId: game?.home_team_id ?? undefined,
+      awayTeamId: game?.away_team_id ?? undefined,
+    }
+  })
 }
 
 export async function getPendingRequests(userId: string): Promise<User[]> {

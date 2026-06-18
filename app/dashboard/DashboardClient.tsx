@@ -3,7 +3,7 @@
 import { useMemo, useState, useCallback, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { EventLog, User, Game, Team, Venue } from "@/types/venyou";
+import type { EventLog, User, Game, Team, Venue, FriendComment } from "@/types/venyou";
 import { ratingToScore } from "@/lib/sports";
 import EventLogCard from "@/components/EventLogCard";
 import ActivityFeed from "@/components/ActivityFeed";
@@ -24,6 +24,7 @@ interface Props {
   friends: User[];
   pendingRequests: User[];
   friendActivity: EventLog[];
+  friendComments: FriendComment[];
   games: Game[];
   teams: Team[];
   venues: Venue[];
@@ -34,6 +35,7 @@ export default function DashboardClient({
   friends: initialFriends,
   pendingRequests: initialPending,
   friendActivity: initialFriendActivity,
+  friendComments,
   games, teams, venues,
 }: Props) {
   const router = useRouter();
@@ -364,10 +366,54 @@ export default function DashboardClient({
               ) : null}
 
               {/* Friend activity feed */}
-              {friendActivity.length > 0 && (
-                <div className="mt-2">
-                  <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Friends&apos; recent activity</p>
-                  <ActivityFeed logs={friendActivity} users={friends} games={games} teams={teams} />
+              {(friendActivity.length > 0 || friendComments.length > 0) && (
+                <div className="mt-2 space-y-4">
+                  {friendActivity.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Friends&apos; recent activity</p>
+                      <ActivityFeed logs={friendActivity} users={friends} games={games} teams={teams} />
+                    </div>
+                  )}
+                  {friendComments.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">Friends&apos; recent comments</p>
+                      <div className="space-y-2">
+                        {friendComments.map((c) => {
+                          const home = teams.find((t) => t.id === c.homeTeamId);
+                          const away = teams.find((t) => t.id === c.awayTeamId);
+                          const gameLabel = home && away
+                            ? `${away.abbreviation} @ ${home.abbreviation}`
+                            : "a game";
+                          const timeAgo = (() => {
+                            const diff = Date.now() - new Date(c.createdAt).getTime();
+                            const m = Math.floor(diff / 60000);
+                            if (m < 60) return `${m}m ago`;
+                            const h = Math.floor(m / 60);
+                            if (h < 24) return `${h}h ago`;
+                            return `${Math.floor(h / 24)}d ago`;
+                          })();
+                          return (
+                            <div key={c.id} className="bg-zinc-800 border border-zinc-700 rounded-xl p-3">
+                              <div className="flex items-center justify-between gap-2 mb-1.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <Link href={`/profile/${c.authorUsername}`} className="w-6 h-6 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-100 shrink-0 hover:opacity-80 transition-opacity">
+                                    {c.authorName.charAt(0)}
+                                  </Link>
+                                  <p className="text-xs text-zinc-400 truncate">
+                                    <Link href={`/profile/${c.authorUsername}`} className="font-semibold text-zinc-100 hover:text-emerald-400 transition-colors">{c.authorName}</Link>
+                                    {" on "}
+                                    <span className="text-zinc-300">{gameLabel}</span>
+                                  </p>
+                                </div>
+                                <span className="text-xs text-zinc-600 shrink-0">{timeAgo}</span>
+                              </div>
+                              <p className="text-xs text-zinc-400 pl-8 line-clamp-2 italic">&ldquo;{c.content}&rdquo;</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
