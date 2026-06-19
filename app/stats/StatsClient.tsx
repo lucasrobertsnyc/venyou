@@ -95,9 +95,10 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
     for (const l of logWithMeta) {
       const dateStr = l.attendedDate ?? l.createdAt;
       if (!dateStr) continue;
-      const d = new Date(l.attendedDate ? dateStr + "T12:00:00" : dateStr);
-      if (isNaN(d.getTime())) continue;
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      // Extract YYYY-MM from the start of any date/timestamp format
+      const match = dateStr.match(/^(\d{4})-(\d{2})/);
+      if (!match) continue;
+      const key = `${match[1]}-${match[2]}`;
       if (!months[key]) months[key] = {};
       if (l.sport) months[key][l.sport] = (months[key][l.sport] ?? 0) + 1;
     }
