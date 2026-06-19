@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import ProfileClient from "@/app/profile/[username]/ProfileClient";
 import { getCurrentUser, getUserLogs, getUser, getWishlist, getRankings, getGames, getTeams, getVenues } from "@/lib/api";
 
@@ -8,6 +9,8 @@ interface Props {
 export default async function ProfilePage({ params }: Props) {
   const username = params.username;
   const [user, currentUser] = await Promise.all([getUser(username), getCurrentUser()]);
+
+  if (user && currentUser?.id === user.id) redirect("/dashboard");
 
   if (!user) {
     const [games, teams, venues] = await Promise.all([getGames(), getTeams(), getVenues()]);

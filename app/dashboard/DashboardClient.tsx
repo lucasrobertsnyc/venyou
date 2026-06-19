@@ -3,11 +3,16 @@
 import { useMemo, useState, useCallback, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { EventLog, User, Game, Team, Venue, FriendComment } from "@/types/venyou";
+import type { EventLog, User, Game, Team, Venue, FriendComment, Ranking, WantToAttend } from "@/types/venyou";
+import type { Sport } from "@/types/venyou";
 import { ratingToScore, SPORT_BG_COLORS } from "@/lib/sports";
 import { TEAM_HOME_VENUE } from "@/lib/venues";
 import EventLogCard from "@/components/EventLogCard";
 import LogoutButton from "@/components/LogoutButton";
+import TeamBadge from "@/components/TeamBadge";
+import SportFilter from "@/components/SportFilter";
+import RankingCard from "@/components/RankingCard";
+import WishlistSection from "@/components/WishlistSection";
 import {
   addFriendAction,
   acceptFriendAction,
@@ -25,18 +30,25 @@ interface Props {
   pendingRequests: User[];
   friendActivity: EventLog[];
   friendComments: FriendComment[];
+  rankings: Ranking[];
+  wishlist: WantToAttend[];
   games: Game[];
   teams: Team[];
   venues: Venue[];
 }
 
 export default function DashboardClient({
-  logs, user,
+  logs,
+  user,
   friends: initialFriends,
   pendingRequests: initialPending,
   friendActivity: initialFriendActivity,
   friendComments,
-  games, teams, venues,
+  rankings,
+  wishlist,
+  games,
+  teams,
+  venues,
 }: Props) {
   const router = useRouter();
   const [editingLog, setEditingLog] = useState<EventLog | null>(null);
@@ -49,10 +61,26 @@ export default function DashboardClient({
   const [addError, setAddError] = useState<string | null>(null);
   const [addSuccess, setAddSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [sportFilter, setSportFilter] = useState<Sport | "all">("all");
 
-  // Sync state when server re-fetches (after router.refresh())
   useEffect(() => { setFriends(initialFriends); }, [initialFriends]);
   useEffect(() => { setPendingRequests(initialPending); }, [initialPending]);
+
+  // Scroll to a specific log when navigated via a hash link
+  useEffect(() => {
+    let id: ReturnType<typeof setTimeout>;
+    const attempt = (remaining: number) => {
+      const hash = window.location.hash;
+      if (hash.startsWith("#log-")) {
+        const el = document.getElementById(hash.slice(1));
+        if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+      }
+      if (remaining > 0) id = setTimeout(() => attempt(remaining - 1), 100);
+    };
+    id = setTimeout(() => attempt(20), 50);
+    return () => clearTimeout(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleEditLog = useCallback((log: EventLog) => setEditingLog(log), []);
 
@@ -88,24 +116,9 @@ export default function DashboardClient({
     await deleteLogAction(logId);
   }, []);
 
-  const myLogs = useMemo(() => localLogs.filter((l) => l.userId === user.id), [localLogs, user.id]);
-
-  const stats = useMemo(() => {
-    const sports = new Set(
-      myLogs.map((l) => {
-        const game = games.find((g) => g.id === l.gameId);
-        return teams.find((t) => t.id === game?.homeTeamId)?.sport ?? game?.sport;
-      }).filter(Boolean)
-    );
-    const venueIds = new Set(
-      myLogs.map((l) => games.find((g) => g.id === l.gameId)?.venueId).filter(Boolean)
-    );
-    const scores = myLogs.map((l) => ratingToScore(l.rating)).filter((s) => s > 0);
-    const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : "—";
-    return { total: myLogs.length, sports: sports.size, venues: venueIds.size, avg: avgScore };
-  }, [myLogs, games, teams]);
-
-  const recentLogs = useMemo(() => myLogs.slice(0, 5), [myLogs]);
+  const handleSportChange = useCallback((s: Sport | "all") => {
+    startTransition(() => setSportFilter(s));
+  }, []);
 
   const handleAddFriend = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,13 +143,11 @@ export default function DashboardClient({
   }, [user.id, friendUsername]);
 
   const handleAcceptRequest = useCallback(async (requester: User) => {
-    // Optimistic update
     setPendingRequests((prev) => prev.filter((r) => r.id !== requester.id));
     setFriends((prev) => [...prev, requester]);
     startTransition(async () => {
       const result = await acceptFriendAction(requester.id, user.id);
       if (result.error) {
-        // Revert on failure and show error
         setPendingRequests((prev) => [...prev, requester]);
         setFriends((prev) => prev.filter((f) => f.id !== requester.id));
         setAddError(result.error);
@@ -162,6 +173,53 @@ export default function DashboardClient({
     });
   }, [user.id, router]);
 
+  const logWithMeta = useMemo(
+    () =>
+      [...localLogs]
+        .sort((a, b) => {
+          const da = new Date(a.attendedDate ?? a.createdAt).getTime();
+          const db = new Date(b.attendedDate ?? b.createdAt).getTime();
+          return db - da;
+        })
+        .map((l) => {
+          const game = games.find((g) => g.id === l.gameId);
+          const home = teams.find((t) => t.id === game?.homeTeamId);
+          return { ...l, sport: home?.sport ?? game?.sport, venueId: game?.venueId };
+        }),
+    [localLogs, games, teams]
+  );
+
+  const filtered = useMemo(
+    () => sportFilter === "all" ? logWithMeta : logWithMeta.filter((l) => l.sport === sportFilter),
+    [logWithMeta, sportFilter]
+  );
+
+  const groupedLogs = useMemo(() => {
+    const groups: { label: string; items: typeof filtered }[] = [];
+    const seen = new Map<string, number>();
+    for (const log of filtered) {
+      const dateStr = log.attendedDate ?? log.createdAt;
+      const date = new Date(dateStr + (log.attendedDate ? "T12:00:00" : ""));
+      const label = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      if (!seen.has(label)) { seen.set(label, groups.length); groups.push({ label, items: [] }); }
+      groups[seen.get(label)!].items.push(log);
+    }
+    return groups;
+  }, [filtered]);
+
+  const stats = useMemo(() => {
+    const sports = new Set(logWithMeta.map((l) => l.sport).filter(Boolean));
+    const venueIds = new Set(logWithMeta.map((l) => l.venueId).filter(Boolean));
+    const scores = logWithMeta.map((l) => ratingToScore(l.rating)).filter((s) => s > 0);
+    const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : "—";
+    return { total: logWithMeta.length, sports: sports.size, venues: venueIds.size, avg: avgScore };
+  }, [logWithMeta]);
+
+  const favoriteTeams = useMemo(
+    () => Object.values(user.favoriteTeams).map((id) => teams.find((t) => t.id === id)).filter(Boolean) as Team[],
+    [user.favoriteTeams, teams]
+  );
+
   return (
     <div className="min-h-screen bg-zinc-950">
       {/* Nav */}
@@ -170,7 +228,6 @@ export default function DashboardClient({
           <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">Stubs</Link>
           <div className="flex items-center gap-6">
             <Link href="/stats" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 transition-colors">Stats</Link>
-            <Link href={`/profile/${user.username}`} className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 transition-colors">Profile</Link>
             <Link href="/log" className="text-sm bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
               + Log Game
             </Link>
@@ -181,77 +238,153 @@ export default function DashboardClient({
 
       <div className="max-w-5xl mx-auto px-6 py-10">
 
-        {/* Header with inline stats */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 pb-10 border-b border-zinc-800/60">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-600 mb-2">{user.homeCity}</p>
-            <h1 className="text-3xl font-black text-zinc-100 leading-tight">{user.displayName}&apos;s<br />Sports Passport</h1>
+        {/* Profile header */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl font-black text-emerald-400">
+                {user.displayName.charAt(0)}
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-zinc-100">{user.displayName}</h1>
+                <p className="text-sm text-zinc-400">@{user.username}</p>
+                {user.homeCity && <p className="text-xs text-zinc-500 mt-0.5">{user.homeCity}</p>}
+                {user.bio && <p className="text-sm text-zinc-400 mt-1 max-w-sm">{user.bio}</p>}
+              </div>
+            </div>
+            <a
+              href="#rankings"
+              className="text-sm border border-zinc-700 hover:border-emerald-500 text-zinc-300 hover:text-emerald-400 px-4 py-2 rounded-xl transition-colors shrink-0"
+            >
+              Rankings {rankings.length > 0 && `(${rankings.length})`}
+            </a>
           </div>
-          <div className="flex gap-8">
+
+          {/* Stats bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-zinc-800">
             {[
-              { val: stats.total, label: "Games" },
-              { val: stats.venues, label: "Venues" },
-              { val: stats.sports, label: "Sports" },
-              { val: stats.avg, label: "Avg score" },
-            ].map(({ val, label }) => (
-              <div key={label} className="text-center sm:text-right">
-                <p className="text-2xl font-black text-zinc-100 tabular-nums leading-none">{val}</p>
-                <p className="text-xs text-zinc-500 uppercase tracking-widest mt-1">{label}</p>
+              { label: "Games", val: stats.total },
+              { label: "Venues", val: stats.venues },
+              { label: "Sports", val: stats.sports },
+              { label: "Avg Score", val: `${stats.avg}/10` },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <p className="text-xl font-black text-emerald-400">{s.val}</p>
+                <p className="text-xs text-zinc-500">{s.label}</p>
               </div>
             ))}
           </div>
+
+          {/* Favorite teams */}
+          {favoriteTeams.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {favoriteTeams.map((t) => <TeamBadge key={t.id} team={t} size="sm" />)}
+            </div>
+          )}
+          <p className="text-xs text-zinc-600 mt-3">Member since {new Date(user.joinedAt).getFullYear()}</p>
+        </div>
+
+        {/* Sport filter */}
+        <div className="mb-6">
+          <SportFilter selected={sportFilter} onChange={handleSportChange} />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-10">
-          {/* Recent logs */}
-          <div className="lg:col-span-2">
-            <div className="flex items-baseline justify-between mb-5">
-              <h2 className="text-sm font-bold text-zinc-100">Recent games</h2>
-              <Link href={`/profile/${user.username}`} className="text-xs text-zinc-500 hover:text-emerald-400 transition-colors">
-                All logs →
-              </Link>
-            </div>
-            <div className="space-y-2.5">
-              {recentLogs.length === 0 ? (
-                <p className="text-sm text-zinc-600 py-6 text-center">
-                  No games logged yet.{" "}
-                  <Link href="/log" className="text-emerald-400 hover:text-emerald-300">Log your first →</Link>
+          {/* Main column */}
+          <div className="lg:col-span-2 space-y-10">
+
+            {/* Games — grouped by month */}
+            <div id="games">
+              {groupedLogs.length === 0 ? (
+                <p className="text-sm text-zinc-600 py-8 text-center">
+                  {sportFilter === "all" ? (
+                    <>No games logged yet. <Link href="/log" className="text-emerald-400 hover:text-emerald-300">Log your first →</Link></>
+                  ) : (
+                    "No games logged for this sport yet."
+                  )}
                 </p>
-              ) : recentLogs.map((log) => {
-                const game = games.find((g) => g.id === log.gameId);
-                const home = teams.find((t) => t.id === game?.homeTeamId);
-                const away = teams.find((t) => t.id === game?.awayTeamId);
-                const venue =
-                  venues.find((v) => v.id === game?.venueId) ??
-                  (home ? venues.find((v) => v.id === TEAM_HOME_VENUE[home.id]) : undefined);
-                return (
-                  <EventLogCard key={log.id} log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={user.id} onDelete={handleDeleteLog} onEdit={handleEditLog} />
-                );
-              })}
+              ) : (
+                groupedLogs.map((group) => (
+                  <div key={group.label} className="mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-xs font-semibold uppercase tracking-widest text-zinc-500">{group.label}</span>
+                      <div className="flex-1 h-px bg-zinc-800" />
+                      <span className="text-xs text-zinc-600">{group.items.length}</span>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {group.items.map((log) => {
+                        const game = games.find((g) => g.id === log.gameId);
+                        const home = teams.find((t) => t.id === game?.homeTeamId);
+                        const away = teams.find((t) => t.id === game?.awayTeamId);
+                        const venue =
+                          venues.find((v) => v.id === game?.venueId) ??
+                          (home ? venues.find((v) => v.id === TEAM_HOME_VENUE[home.id]) : undefined);
+                        return (
+                          <div key={log.id} id={`log-${log.id}`} className="scroll-mt-24">
+                            <EventLogCard log={log} game={game} homeTeam={home} awayTeam={away} venue={venue} currentUserId={user.id} onDelete={handleDeleteLog} onEdit={handleEditLog} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Rankings */}
+            <div id="rankings">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-wider">Rankings</h2>
+                <Link
+                  href={`/rankings/${user.username}`}
+                  className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
+                >
+                  Manage →
+                </Link>
+              </div>
+              {rankings.length > 0 ? (
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {rankings.map((r) => (
+                    <RankingCard key={r.id} ranking={r} teams={teams} venues={venues} games={games} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-zinc-500 text-sm text-center py-8">
+                  No rankings yet.{" "}
+                  <Link href={`/rankings/${user.username}`} className="text-emerald-400 hover:text-emerald-300">
+                    Create one →
+                  </Link>
+                </p>
+              )}
+            </div>
+
+            {/* Wishlist */}
+            <div id="wishlist">
+              <WishlistSection initialWishlist={wishlist} teams={teams} venues={venues} isOwner={true} />
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-8">
-            {/* Nav links */}
+            {/* Jump to */}
             <div>
               <p className="text-xs uppercase tracking-widest text-zinc-600 mb-3">Jump to</p>
               <div className="space-y-px">
                 {[
+                  { href: "#games", label: "Games" },
+                  { href: "#rankings", label: "Rankings" },
+                  { href: "#wishlist", label: "Wishlist" },
                   { href: "/stats", label: "Stats" },
-                  { href: `/rankings/${user.username}`, label: "Rankings" },
-                  { href: `/profile/${user.username}`, label: "Full profile" },
-                  { href: `/profile/${user.username}#wishlist`, label: "Wishlist" },
                   { href: "/log", label: "Log a game" },
                 ].map((item) => (
-                  <Link
+                  <a
                     key={item.href}
                     href={item.href}
                     className="flex items-center justify-between py-2.5 text-sm text-zinc-400 hover:text-zinc-100 border-b border-zinc-800/50 transition-colors group"
                   >
                     {item.label}
                     <span className="text-zinc-700 group-hover:text-zinc-400 transition-colors">→</span>
-                  </Link>
+                  </a>
                 ))}
               </div>
             </div>
@@ -275,7 +408,6 @@ export default function DashboardClient({
                 </button>
               </div>
 
-              {/* Add friend form */}
               {showAddFriend && (
                 <form onSubmit={handleAddFriend} className="mb-3 space-y-2">
                   <div className="flex gap-2">
@@ -299,7 +431,6 @@ export default function DashboardClient({
                 </form>
               )}
 
-              {/* Pending incoming requests */}
               {pendingRequests.length > 0 && (
                 <div className="mb-3">
                   <p className="text-xs text-zinc-500 mb-1.5">Requests</p>
@@ -338,7 +469,6 @@ export default function DashboardClient({
                 </div>
               )}
 
-              {/* Friend list */}
               {friends.length === 0 && pendingRequests.length === 0 ? (
                 <p className="text-xs text-zinc-600 leading-relaxed">
                   No friends yet. Add someone by their username to see their game logs here.
