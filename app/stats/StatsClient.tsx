@@ -93,7 +93,10 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
   const gamesOverTime = useMemo(() => {
     const months: Record<string, Partial<Record<Sport, number>>> = {};
     for (const l of logWithMeta) {
-      const d = new Date(l.attendedDate + "T12:00:00");
+      const dateStr = l.attendedDate ?? l.createdAt;
+      if (!dateStr) continue;
+      const d = new Date(l.attendedDate ? dateStr + "T12:00:00" : dateStr);
+      if (isNaN(d.getTime())) continue;
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       if (!months[key]) months[key] = {};
       if (l.sport) months[key][l.sport] = (months[key][l.sport] ?? 0) + 1;
@@ -222,7 +225,7 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
             </h2>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={gamesBySport} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }}>
-                <XAxis type="number" tick={{ fill: "#71717a", fontSize: 11 }} tickLine={false} axisLine={false} />
+                <XAxis type="number" allowDecimals={false} tick={{ fill: "#71717a", fontSize: 11 }} tickLine={false} axisLine={false} />
                 <YAxis type="category" dataKey="name" tick={{ fill: "#a1a1aa", fontSize: 12 }} tickLine={false} axisLine={false} width={36} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "#3f3f46" }} />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]} name="Games">
