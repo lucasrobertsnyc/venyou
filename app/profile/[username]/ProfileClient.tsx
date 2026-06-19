@@ -177,12 +177,20 @@ export default function ProfileClient({ logs: initialLogs, user, wishlist, ranki
                 {user.bio && <p className="text-sm text-zinc-400 mt-1 max-w-sm">{user.bio}</p>}
               </div>
             </div>
-            <a
-              href="#rankings"
-              className="text-sm border border-zinc-700 hover:border-emerald-500 text-zinc-300 hover:text-emerald-400 px-4 py-2 rounded-xl transition-colors"
-            >
-              Rankings {rankings.length > 0 && `(${rankings.length})`}
-            </a>
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/stats/${user.username}`}
+                className="text-sm border border-zinc-700 hover:border-emerald-500 text-zinc-300 hover:text-emerald-400 px-4 py-2 rounded-xl transition-colors"
+              >
+                Stats
+              </Link>
+              <a
+                href="#rankings"
+                className="text-sm border border-zinc-700 hover:border-emerald-500 text-zinc-300 hover:text-emerald-400 px-4 py-2 rounded-xl transition-colors"
+              >
+                Rankings {rankings.length > 0 && `(${rankings.length})`}
+              </a>
+            </div>
           </div>
 
           {/* Stats bar */}

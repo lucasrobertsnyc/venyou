@@ -187,7 +187,11 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-emerald-400 font-black text-lg tracking-tight">Stubs</Link>
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
+            {username ? (
+              <Link href={`/profile/${username}`} className="text-sm text-zinc-400 hover:text-zinc-100">← {username}</Link>
+            ) : (
+              <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-zinc-100">Dashboard</Link>
+            )}
             <Link href="/log" className="text-sm bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-full font-semibold transition-colors">
               + Log Game
             </Link>
@@ -199,8 +203,8 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
       <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-black text-zinc-100">Your Stats</h1>
-            <p className="text-sm text-zinc-400 mt-1">{username ? `@${username}` : "Your"} sports passport breakdown</p>
+            <h1 className="text-2xl font-black text-zinc-100">{username ? `@${username}` : "Your"} Stats</h1>
+            <p className="text-sm text-zinc-400 mt-1">Sports passport breakdown</p>
           </div>
         </div>
 
