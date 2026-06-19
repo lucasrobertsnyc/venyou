@@ -50,7 +50,7 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
       logs.map((l) => {
         const game = games.find((g) => g.id === l.gameId);
         const home = teams.find((t) => t.id === game?.homeTeamId);
-        return { ...l, sport: home?.sport, venueId: game?.venueId, homeTeamId: game?.homeTeamId };
+        return { ...l, sport: home?.sport ?? game?.sport, venueId: game?.venueId, homeTeamId: game?.homeTeamId };
       }),
     [logs, games, teams]
   );
@@ -261,8 +261,8 @@ export default function StatsClient({ logs, venues, games, teams, username }: Pr
                     dataKey={s}
                     stroke={SPORT_CHART_COLORS[s]}
                     strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 3 }}
+                    dot={{ r: 2 }}
+                    activeDot={{ r: 4 }}
                     connectNulls
                   />
                 ))}
