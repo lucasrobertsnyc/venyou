@@ -12,10 +12,7 @@ interface Props {
   isOwner: boolean;
 }
 
-type Tab = "teams" | "venues";
-
 interface Pending {
-  type: "team" | "venue";
   id: string;
   label: string;
   color?: string;
@@ -25,7 +22,6 @@ interface Pending {
 export default function WishlistSection({ initialWishlist, teams, venues, isOwner }: Props) {
   const [wishlist, setWishlist] = useState<WantToAttend[]>(initialWishlist);
   const [adding, setAdding] = useState(false);
-  const [tab, setTab] = useState<Tab>("teams");
   const [search, setSearch] = useState("");
   const [pending, setPending] = useState<Pending | null>(null);
   const [note, setNote] = useState("");
@@ -34,7 +30,6 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
   const searchRef = useRef<HTMLInputElement>(null);
 
   const existingTeamIds = useMemo(() => new Set(wishlist.map((w) => w.teamId).filter(Boolean)), [wishlist]);
-  const existingVenueIds = useMemo(() => new Set(wishlist.map((w) => w.venueId).filter(Boolean)), [wishlist]);
 
   const filteredTeams = useMemo(() => {
     const q = search.toLowerCase();
@@ -42,13 +37,6 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
       (t) => !existingTeamIds.has(t.id) && (`${t.city} ${t.name}`.toLowerCase().includes(q) || t.abbreviation.toLowerCase().includes(q))
     );
   }, [teams, search, existingTeamIds]);
-
-  const filteredVenues = useMemo(() => {
-    const q = search.toLowerCase();
-    return venues.filter(
-      (v) => !existingVenueIds.has(v.id) && (v.name.toLowerCase().includes(q) || v.city.toLowerCase().includes(q))
-    );
-  }, [venues, search, existingVenueIds]);
 
   const openAdd = useCallback(() => {
     setAdding(true);
@@ -69,21 +57,10 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
     if (!pending) return;
     setSaving(true);
     setError(null);
-    const result = await addWishlistItemAction({
-      teamId: pending.type === "team" ? pending.id : undefined,
-      venueId: pending.type === "venue" ? pending.id : undefined,
-      note: note.trim(),
-    });
+    const result = await addWishlistItemAction({ teamId: pending.id, note: note.trim() });
     setSaving(false);
     if (result.error) { setError(result.error); return; }
-    const newItem: WantToAttend = {
-      id: result.id!,
-      userId: "",
-      teamId: pending.type === "team" ? pending.id : undefined,
-      venueId: pending.type === "venue" ? pending.id : undefined,
-      note: note.trim(),
-    };
-    setWishlist((prev) => [...prev, newItem]);
+    setWishlist((prev) => [...prev, { id: result.id!, userId: "", teamId: pending.id, note: note.trim() }]);
     setPending(null);
     setNote("");
     setSearch("");
@@ -112,35 +89,19 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
       {/* Add panel */}
       {adding && (
         <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 mb-4">
-          {/* Tabs */}
-          <div className="flex gap-1 mb-3">
-            {(["teams", "venues"] as Tab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => { setTab(t); setSearch(""); setPending(null); }}
-                className={`text-xs font-semibold px-3 py-1 rounded-full transition-colors capitalize ${
-                  tab === t ? "bg-emerald-500 text-white" : "bg-zinc-800 text-zinc-400 hover:text-zinc-100"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
+          <div className="flex justify-end mb-3">
             <button
               onClick={() => setAdding(false)}
-              className="ml-auto text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
             >
               Cancel
             </button>
           </div>
 
-          {/* Pending selection */}
           {pending ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2 bg-zinc-800 rounded-lg px-3 py-2">
-                <div
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: pending.color ?? "#34d399" }}
-                />
+                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: pending.color ?? "#34d399" }} />
                 <span className="text-sm font-medium text-zinc-100 flex-1">{pending.label}</span>
                 {pending.sport && <span className="text-xs text-zinc-500">{pending.sport}</span>}
                 <button onClick={() => setPending(null)} className="text-zinc-500 hover:text-zinc-300 text-sm leading-none">×</button>
@@ -177,38 +138,29 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={`Search ${tab}…`}
+                placeholder="Search teams…"
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 mb-3"
               />
               <div className="max-h-48 overflow-y-auto space-y-1">
-                {tab === "teams"
-                  ? filteredTeams.slice(0, 20).map((t) => (
-                      <button
-                        key={t.id}
-                        onClick={() => handleSelect({ type: "team", id: t.id, label: `${t.city} ${t.name}`, color: t.primaryColor, sport: t.sport })}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
-                      >
-                        <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: t.primaryColor }} />
-                        <span className="text-sm text-zinc-200 flex-1">{t.city} {t.name}</span>
-                        <span className="text-xs text-zinc-500">{t.sport}</span>
-                      </button>
-                    ))
-                  : filteredVenues.slice(0, 20).map((v) => (
-                      <button
-                        key={v.id}
-                        onClick={() => handleSelect({ type: "venue", id: v.id, label: v.name, color: "#34d399" })}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
-                      >
-                        <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-                        <span className="text-sm text-zinc-200 flex-1">{v.name}</span>
-                        <span className="text-xs text-zinc-500">{v.city}</span>
-                      </button>
-                    ))}
-                {tab === "teams" && filteredTeams.length === 0 && (
+                {filteredTeams.slice(0, 20).map((t) => {
+                  const homeVenue = venues.find((v) => v.id === TEAM_HOME_VENUE[t.id]);
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => handleSelect({ id: t.id, label: `${t.city} ${t.name}`, color: t.primaryColor, sport: t.sport })}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
+                    >
+                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: t.primaryColor }} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-zinc-200">{t.city} {t.name}</p>
+                        {homeVenue && <p className="text-xs text-zinc-500">{homeVenue.name}</p>}
+                      </div>
+                      <span className="text-xs text-zinc-500 shrink-0">{t.sport}</span>
+                    </button>
+                  );
+                })}
+                {filteredTeams.length === 0 && (
                   <p className="text-xs text-zinc-500 text-center py-4">No teams found</p>
-                )}
-                {tab === "venues" && filteredVenues.length === 0 && (
-                  <p className="text-xs text-zinc-500 text-center py-4">No venues found</p>
                 )}
               </div>
             </>
@@ -222,6 +174,7 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
           {wishlist.map((w) => {
             const team = w.teamId ? teams.find((t) => t.id === w.teamId) : null;
             const venue = w.venueId ? venues.find((v) => v.id === w.venueId) : null;
+            const homeVenue = team ? venues.find((v) => v.id === TEAM_HOME_VENUE[team.id]) : null;
             return (
               <div key={w.id} className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 flex items-center gap-3 group">
                 <div
@@ -232,15 +185,8 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
                   <p className="text-sm font-medium text-zinc-100">
                     {team ? `${team.city} ${team.name}` : venue?.name ?? "Unknown"}
                   </p>
-                  {team && (() => {
-                    const homeVenue = venues.find((v) => v.id === TEAM_HOME_VENUE[team.id]);
-                    return homeVenue ? (
-                      <p className="text-xs text-zinc-500">{homeVenue.name}</p>
-                    ) : null;
-                  })()}
-                  {!team && venue && (
-                    <p className="text-xs text-zinc-500">{venue.city}{venue.state ? `, ${venue.state}` : ""}</p>
-                  )}
+                  {homeVenue && <p className="text-xs text-zinc-500">{homeVenue.name}</p>}
+                  {!team && venue && <p className="text-xs text-zinc-500">{venue.city}{venue.state ? `, ${venue.state}` : ""}</p>}
                   {w.note && <p className="text-xs text-zinc-500 italic mt-0.5">{w.note}</p>}
                 </div>
                 {team && <span className="text-xs font-bold text-zinc-500">{team.sport}</span>}
