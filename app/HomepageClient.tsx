@@ -6,16 +6,16 @@ const FEATURES = [
   { title: "Log Games", desc: "Teams, venue, date, score, seats, section. Everything about the day." },
   { title: "Rate the Experience", desc: "9 categories — atmosphere, food, sightlines, entry, parking, and more." },
   { title: "Build Rankings", desc: "Your top stadiums, best rivalries, bucket list venues. Shareable lists." },
-  { title: "Track Venues", desc: "Every stadium and arena you've walked into. Your own personal map." },
-  { title: "Follow Teams", desc: "Every team you've seen live, across all five major sports." },
-  { title: "Compare With Friends", desc: "See what friends have rated. Settle the debate on which arena's better." },
+  { title: "Wishlist", desc: "Add teams you want to see live. Their home venue shows automatically." },
+  { title: "Full Stats", desc: "Games by sport, venues visited, ratings breakdown, and trends over time." },
+  { title: "Follow Friends", desc: "See their full profile, stats, rankings, and wishlist. All in one place." },
 ];
 
 const STEPS = [
   { n: "01", title: "Log it", desc: "Pick the game, enter your section, record the final score." },
   { n: "02", title: "Rate it", desc: "Score across 9 experience categories, plus the game itself." },
-  { n: "03", title: "Build your passport", desc: "Your full history, stats, and venue log in one place." },
-  { n: "04", title: "Share it", desc: "Rankings, scores, and opinions — all yours to show off." },
+  { n: "03", title: "Build your profile", desc: "Every game, ranking, and wishlist item — your full sports life in one page." },
+  { n: "04", title: "Share it", desc: "Show friends your profile, stats, and rankings. Compare notes." },
 ];
 
 const RANKING_EXAMPLES = [
@@ -50,7 +50,7 @@ export default function HomepageClient({ isLoggedIn = false }: { isLoggedIn?: bo
             <a href="#features" className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 hidden sm:block transition-colors">Features</a>
             {isLoggedIn ? (
               <Link href="/dashboard" className="text-sm font-bold text-emerald-400 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 px-4 py-2 rounded-lg transition-colors">
-                My Dashboard →
+                My Profile →
               </Link>
             ) : (
               <>
@@ -101,7 +101,7 @@ export default function HomepageClient({ isLoggedIn = false }: { isLoggedIn?: bo
                   href="/dashboard"
                   className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-7 py-3.5 rounded-lg text-sm transition-colors"
                 >
-                  Go to Dashboard →
+                  Go to my profile →
                 </Link>
               ) : (
                 <>
@@ -156,7 +156,7 @@ export default function HomepageClient({ isLoggedIn = false }: { isLoggedIn?: bo
           <div>
             <p className="text-xs uppercase tracking-widest text-emerald-400 mb-1">Live demo</p>
             <p className="text-lg font-black text-zinc-100">See Stubs in action.</p>
-            <p className="text-sm text-zinc-500 mt-1">Explore a fully-loaded dashboard, stats, rankings, and venue pages — no sign-up required.</p>
+            <p className="text-sm text-zinc-500 mt-1">Explore a fully-loaded profile — logs, stats, rankings, wishlist, and friends — no sign-up required.</p>
           </div>
           <Link
             href="/dashboard"
@@ -276,11 +276,11 @@ export default function HomepageClient({ isLoggedIn = false }: { isLoggedIn?: bo
         <div className="max-w-6xl mx-auto px-6 py-24 text-center">
           <p className="text-xs uppercase tracking-widest text-emerald-400 mb-4">Free to use</p>
           <h2 className="text-5xl lg:text-6xl font-black text-zinc-100 leading-[0.92] tracking-tight mb-6">
-            Your sports passport<br />starts here.
+            Your sports profile<br />starts here.
           </h2>
           <p className="text-zinc-500 text-base leading-relaxed mb-10 max-w-sm mx-auto">
             Create an account and start logging every game you&apos;ve ever been to.
-            It takes two minutes.
+            Your full history, stats, rankings, and wishlist — all in one place.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             {isLoggedIn ? (
@@ -288,7 +288,7 @@ export default function HomepageClient({ isLoggedIn = false }: { isLoggedIn?: bo
                 href="/dashboard"
                 className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-4 rounded-xl text-sm transition-colors"
               >
-                Go to Dashboard →
+                Go to my profile →
               </Link>
             ) : (
               <>
