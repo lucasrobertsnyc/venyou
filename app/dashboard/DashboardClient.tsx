@@ -331,10 +331,14 @@ export default function DashboardClient({
               )}
             </div>
 
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-8">
             {/* Rankings */}
             <div id="rankings">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-wider">Rankings</h2>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs uppercase tracking-widest text-zinc-600">Rankings</p>
                 <Link
                   href={`/rankings/${user.username}`}
                   className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
@@ -343,13 +347,13 @@ export default function DashboardClient({
                 </Link>
               </div>
               {rankings.length > 0 ? (
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-3">
                   {rankings.map((r) => (
                     <RankingCard key={r.id} ranking={r} teams={teams} venues={venues} games={games} />
                   ))}
                 </div>
               ) : (
-                <p className="text-zinc-500 text-sm text-center py-8">
+                <p className="text-zinc-500 text-xs text-center py-4">
                   No rankings yet.{" "}
                   <Link href={`/rankings/${user.username}`} className="text-emerald-400 hover:text-emerald-300">
                     Create one →
@@ -361,32 +365,6 @@ export default function DashboardClient({
             {/* Wishlist */}
             <div id="wishlist">
               <WishlistSection initialWishlist={wishlist} teams={teams} venues={venues} isOwner={true} />
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Jump to */}
-            <div>
-              <p className="text-xs uppercase tracking-widest text-zinc-600 mb-3">Jump to</p>
-              <div className="space-y-px">
-                {[
-                  { href: "#games", label: "Games" },
-                  { href: "#rankings", label: "Rankings" },
-                  { href: "#wishlist", label: "Wishlist" },
-                  { href: "/stats", label: "Stats" },
-                  { href: "/log", label: "Log a game" },
-                ].map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className="flex items-center justify-between py-2.5 text-sm text-zinc-400 hover:text-zinc-100 border-b border-zinc-800/50 transition-colors group"
-                  >
-                    {item.label}
-                    <span className="text-zinc-700 group-hover:text-zinc-400 transition-colors">→</span>
-                  </a>
-                ))}
-              </div>
             </div>
 
             {/* Friends */}
