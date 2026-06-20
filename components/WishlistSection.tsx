@@ -74,8 +74,8 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
 
   return (
     <div>
-      <div id="wishlist" className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-wider">Wishlist</h2>
+      <div id="wishlist" className="flex items-center justify-between mb-3">
+        <p className="text-xs uppercase tracking-widest text-zinc-600">Wishlist</p>
         {isOwner && !adding && (
           <button
             onClick={openAdd}
@@ -170,30 +170,30 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
 
       {/* Wishlist items */}
       {wishlist.length > 0 ? (
-        <div className="space-y-2">
+        <div>
           {wishlist.map((w) => {
             const team = w.teamId ? teams.find((t) => t.id === w.teamId) : null;
             const venue = w.venueId ? venues.find((v) => v.id === w.venueId) : null;
             const homeVenue = team ? venues.find((v) => v.id === TEAM_HOME_VENUE[team.id]) : null;
             return (
-              <div key={w.id} className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 flex items-center gap-3 group">
+              <div key={w.id} className="flex items-center gap-2.5 py-2 border-b border-zinc-800/50 group">
                 <div
                   className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: team?.primaryColor ?? "#34d399" }}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-zinc-100">
+                  <p className="text-xs font-medium text-zinc-200 truncate">
                     {team ? `${team.city} ${team.name}` : venue?.name ?? "Unknown"}
                   </p>
                   {homeVenue && <p className="text-xs text-zinc-500">{homeVenue.name}</p>}
                   {!team && venue && <p className="text-xs text-zinc-500">{venue.city}{venue.state ? `, ${venue.state}` : ""}</p>}
-                  {w.note && <p className="text-xs text-zinc-500 italic mt-0.5">{w.note}</p>}
+                  {w.note && <p className="text-xs text-zinc-500 italic">{w.note}</p>}
                 </div>
-                {team && <span className="text-xs font-bold text-zinc-500">{team.sport}</span>}
+                {team && <span className="text-xs text-zinc-600 shrink-0">{team.sport}</span>}
                 {isOwner && (
                   <button
                     onClick={() => handleRemove(w.id)}
-                    className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-all text-sm leading-none ml-1"
+                    className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all text-sm leading-none"
                     title="Remove"
                   >
                     ×
@@ -204,7 +204,7 @@ export default function WishlistSection({ initialWishlist, teams, venues, isOwne
           })}
         </div>
       ) : !adding ? (
-        <p className="text-zinc-500 text-sm text-center py-8">
+        <p className="text-zinc-600 text-xs py-2">
           {isOwner ? "Nothing on your wishlist yet." : "No wishlist yet."}
         </p>
       ) : null}

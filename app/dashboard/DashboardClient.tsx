@@ -11,7 +11,6 @@ import EventLogCard from "@/components/EventLogCard";
 import LogoutButton from "@/components/LogoutButton";
 import TeamBadge from "@/components/TeamBadge";
 import SportFilter from "@/components/SportFilter";
-import RankingCard from "@/components/RankingCard";
 import WishlistSection from "@/components/WishlistSection";
 import {
   addFriendAction,
@@ -252,12 +251,6 @@ export default function DashboardClient({
                 {user.bio && <p className="text-sm text-zinc-400 mt-1 max-w-sm">{user.bio}</p>}
               </div>
             </div>
-            <a
-              href="#rankings"
-              className="text-sm border border-zinc-700 hover:border-emerald-500 text-zinc-300 hover:text-emerald-400 px-4 py-2 rounded-xl transition-colors shrink-0"
-            >
-              Rankings {rankings.length > 0 && `(${rankings.length})`}
-            </a>
           </div>
 
           {/* Stats bar */}
@@ -347,13 +340,20 @@ export default function DashboardClient({
                 </Link>
               </div>
               {rankings.length > 0 ? (
-                <div className="space-y-3">
+                <div>
                   {rankings.map((r) => (
-                    <RankingCard key={r.id} ranking={r} teams={teams} venues={venues} games={games} />
+                    <Link
+                      key={r.id}
+                      href={`/rankings/${user.username}`}
+                      className="flex items-center justify-between py-2 border-b border-zinc-800/50 group transition-colors"
+                    >
+                      <span className="text-xs text-zinc-400 group-hover:text-zinc-100 transition-colors truncate">{r.title}</span>
+                      <span className="text-zinc-700 group-hover:text-zinc-400 transition-colors ml-2 shrink-0">→</span>
+                    </Link>
                   ))}
                 </div>
               ) : (
-                <p className="text-zinc-500 text-xs text-center py-4">
+                <p className="text-zinc-600 text-xs py-2">
                   No rankings yet.{" "}
                   <Link href={`/rankings/${user.username}`} className="text-emerald-400 hover:text-emerald-300">
                     Create one →
